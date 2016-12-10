@@ -1,0 +1,33 @@
+{
+    "manifest_version": 2,
+
+    "name": "See the spectrum",
+    "description": "Pop the social news bubble",
+    "version": "1.0",
+
+    "browser_action": {
+        "default_icon": "icon.png"
+    },
+
+    "web_accessible_resources": [
+        "html/*"
+    ],
+
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*"],
+            "css": ["css/main.css"],
+            "js": [
+                "js/jquery-3.1.1.min.js",
+                "js/handlebars-v4.0.5.js",
+                "js/velocity.min.js",
+                "js/velocity.ui.js",
+                "js/main.js"
+            ]
+        }
+    ],
+
+    "permissions": [
+        "activeTab"
+    ]
+}
