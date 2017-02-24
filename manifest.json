@@ -18,10 +18,10 @@
             "matches": ["http://*/*", "https://*/*"],
             "css": ["css/main.css"],
             "js": [
-                "js/jquery-3.1.1.min.js",
-                "js/handlebars-v4.0.5.js",
-                "js/velocity.min.js",
-                "js/velocity.ui.js",
+                "js/lib/jquery-3.1.1.min.js",
+                "js/lib/handlebars-v4.0.5.js",
+                "js/lib/velocity.min.js",
+                "js/lib/velocity.ui.js",
                 "js/main.js"
             ]
         }
