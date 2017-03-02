@@ -201,12 +201,15 @@
   background: transparent;
 }
 
+.spectrum-hide-panel {
+  cursor: pointer;
+}
+
 .spectrum-controller button {
   background: transparent;
   border: none;
   color: black;
   padding: 0;
-  cursor: pointer;
   padding: 0px 5px;
 }
 

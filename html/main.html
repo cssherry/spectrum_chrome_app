@@ -1,7 +1,7 @@
 <div id="spectrum-container" class="spectrum-not-minimize">
   <div class="spectrum-controller spectrum-show-if-open">
-    <button type="button" name="spectrum-minimize">–</button>
-    <button type="button" name="spectrum-close">X</button>
+    <button type="button" data-hide-type="spectrum-minimize" class="spectrum-hide-panel">–</button>
+    <button type="button" data-hide-type="spectrum-close" class="spectrum-hide-panel">X</button>
   </div>
 
   <div class="spectrum-controller spectrum-show-if-minimized spectrum-expand-icon">
@@ -9,7 +9,7 @@
   </div>
 
   <div class="spectrum-container">
-    <div id="spectrum-articles-container-top-border" class="spectrum-expand-icon"></div>
+    <div id="spectrum-articles-container-top-border" data-hide-type="spectrum-minimize" class="spectrum-hide-panel"></div>
     <div id="spectrum-articles-container"></div>
   </div>
 </div>

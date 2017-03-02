@@ -116,6 +116,8 @@ $(document).ready(function () {
     },
 
     _showContainer: function () {
+      this._$articleBorder.addClass('spectrum-hide-panel');
+      this._$articleBorder.removeClass('spectrum-expand-icon');
       this._$container.removeClass('spectrum-close spectrum-minimize');
       this._$container.addClass('spectrum-not-minimize');
     },
@@ -133,6 +135,8 @@ $(document).ready(function () {
         currentPublicationIcon.attr('src', currentPublicationLink);
       }
 
+      this._$articleBorder.addClass('spectrum-expand-icon');
+      this._$articleBorder.removeClass('spectrum-hide-panel');
       this._$container.addClass(hiddenType);
       this._$container.removeClass(removeClass);
     },
@@ -148,7 +152,7 @@ $(document).ready(function () {
 
       this._$container = $html;
       this._$articlesContainer = $html.find('#spectrum-articles-container');
-      this._$articlesContainer = $html.find('#spectrum-articles-container');
+      this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
       $('body').append($html);
 
       if (this._hidden) {
@@ -219,8 +223,8 @@ $(document).ready(function () {
         this.getAssociations(3);
       }.bind(this));
 
-      this._$container.on('click', '.spectrum-controller button', function (e) {
-        var typeButton = e.target.name;
+      this._$container.on('click', '.spectrum-hide-panel', function (e) {
+        var typeButton = e.target.dataset.hideType;
         setLocalStorage('hidden', typeButton);
         this._hideContainer(typeButton);
       }.bind(this));
