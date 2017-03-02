@@ -17,8 +17,8 @@
 ## Spectrum bar
 - [ ] Show bias with description of why
 - [x] Show 2 other articles from other side
-- [ ] Close bar
-- [ ] Hide bar, show icon-greyscale and allow user to expand if click on hidden bar or icon
+- [x] Allow user to close bar
+- [x] Hide bar, show icon-greyscale and allow user to expand if click on hidden bar or icon
 - [ ] Show unknown icon + "Hey! We couldn’t find any similar articles from opposing viewpoints. Try a different article or [email](mailto:spectrum_email_account) us with suggestions." message
 
   ![Full Spectrum Bar](/images/06_initial state.png)
