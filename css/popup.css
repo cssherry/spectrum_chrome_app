@@ -1,0 +1,57 @@
+body {
+  margin: 0px;
+  background-color: #FAFAFA;
+}
+
+.popup-body {
+  width: 400px;
+}
+
+.popup-body hr {
+  background-color: #ABABAB;
+  margin: 0;
+}
+
+.popup-body h1 {
+  vertical-align: middle;
+  color: #53298B;
+  display: inline-block;
+  font-weight: 500;
+  padding-left: 10px;
+}
+
+.middle-align {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.popup-body img {
+  vertical-align: middle;
+  margin: 5px;
+  height: 40px;
+  width: 40px
+}
+
+.popup-body ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.popup-body li {
+  display: block;
+  color: black;
+  padding: 8px 16px;
+}
+
+.popup-body li a {
+  display: block;
+  text-decoration: none;
+  color: #2E79B9;
+}
+
+/* Change the link color on hover */
+.popup-body li:hover {
+    background-color: lightgray;
+}
