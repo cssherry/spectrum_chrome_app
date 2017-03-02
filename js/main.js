@@ -1,6 +1,6 @@
-var spectrum = {};
-
 $(document).ready(function () {
+  window.spectrum = {};
+
   var publications = getLocalStorage('publications');
   var mediaBias = getLocalStorage('mediaBias');
   var publicationUrl = 'http://spectrum-backend.herokuapp.com/feeds/publications';
@@ -25,7 +25,7 @@ $(document).ready(function () {
     }
 
     return null;
-  };
+  }
 
   // Set local storage info
   function setLocalStorage(name, data) {
@@ -35,7 +35,7 @@ $(document).ready(function () {
     };
 
     localStorage.setItem('spectrum-' + name, JSON.stringify(result));
-  };
+  }
 
   // Store in global variable so other scripts can access
   window.spectrum.getLocalStorage = getLocalStorage;
@@ -95,12 +95,8 @@ $(document).ready(function () {
     init: function (location) {
       this._hidden = getLocalStorage('hidden');
 
-      if (this._hidden === 'spectrum-close') {
-        return;
-      } else {
-        if (publications[location.host]) {
-          this.getAssociations(2);
-        }
+      if (this._hidden !== 'spectrum-close' && publications[location.host]) {
+        this.getAssociations(2);
       }
     },
 
@@ -128,7 +124,7 @@ $(document).ready(function () {
       var currentPublicationIcon = this._$container.find('#spectrum-current-publication-icon');
       var currentPublicationLink;
       var isMinimize = hiddenType === 'spectrum-minimize';
-      var removeClass =  isMinimize ? 'spectrum-close' : 'spectrum-minimize';
+      var removeClass = isMinimize ? 'spectrum-close' : 'spectrum-minimize';
       var currentBias = publications[location.host].fields.bias;
       removeClass += ' spectrum-not-minimize';
 
@@ -148,7 +144,7 @@ $(document).ready(function () {
     },
 
     _addContainerCb: function ($html, articleData, currentPublication, numberArticles) {
-      var currPubData = this.currPubData = currentPublication.fields;
+      var currPubData = currentPublication.fields;
 
       this._$container = $html;
       this._$articlesContainer = $html.find('#spectrum-articles-container');
@@ -166,7 +162,7 @@ $(document).ready(function () {
         publication: currPubData.name,
       }, function ($el) {
         this._addCurrArticleCB($el, articleData, numberArticles);
-      }.bind(this))
+      }.bind(this));
     },
 
     _addCurrArticleCB: function ($html, articleData, numberArticles) {
@@ -180,11 +176,12 @@ $(document).ready(function () {
       }
 
       if (articleData.length) {
-        var singleArticleCB = function ($html) {
-          this._$articlesContainer.append($html);
+        var singleArticleCB = function ($el) {
+          this._$articlesContainer.append($el);
         }.bind(this);
+
         isMultiple = true;
-        renderConfig= [];
+        renderConfig = [];
         renderCB = [];
         renderUrl = '../html/article.html';
 
@@ -228,8 +225,7 @@ $(document).ready(function () {
         this._hideContainer(typeButton);
       }.bind(this));
 
-      this._$container.on('click', '.spectrum-expand-icon', function (e) {
-        var typeButton = e.target.name;
+      this._$container.on('click', '.spectrum-expand-icon', function () {
         setLocalStorage('hidden', null);
         this._showContainer();
       }.bind(this));
