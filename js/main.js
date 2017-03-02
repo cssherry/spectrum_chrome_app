@@ -1,3 +1,5 @@
+var spectrum = {};
+
 $(document).ready(function () {
   var publications = getLocalStorage('publications');
   var mediaBias = getLocalStorage('mediaBias');
@@ -23,7 +25,7 @@ $(document).ready(function () {
     }
 
     return null;
-  }
+  };
 
   // Set local storage info
   function setLocalStorage(name, data) {
@@ -33,7 +35,11 @@ $(document).ready(function () {
     };
 
     localStorage.setItem('spectrum-' + name, JSON.stringify(result));
-  }
+  };
+
+  // Store in global variable so other scripts can access
+  window.spectrum.getLocalStorage = getLocalStorage;
+  window.spectrum.setLocalStorage = setLocalStorage;
 
   // Store publications in hash with base_url
   // TODO: Consider if we should be only taking last 2 fields of base_url
@@ -87,8 +93,14 @@ $(document).ready(function () {
 
   var spectrum = {
     init: function (location) {
-      if (publications[location.host]) {
-        this.getAssociations(2);
+      this._hidden = getLocalStorage('hidden');
+
+      if (this._hidden === 'spectrum-close') {
+        return;
+      } else {
+        if (publications[location.host]) {
+          this.getAssociations(2);
+        }
       }
     },
 
@@ -107,28 +119,45 @@ $(document).ready(function () {
       });
     },
 
-    hideContainer: function (animate) {
-      if (animate) {
-        this._$container.velocity('transition.slideDownOut', {
-          duration: 300,
-        });
-      } else {
-        this._$container.hide();
-      }
+    _showContainer: function () {
+      this._$container.removeClass('spectrum-close spectrum-minimize');
+      this._$container.addClass('spectrum-not-minimize');
     },
 
-    showArticles: function (articleData, currentPublication, numberArticles, animate) {
+    _hideContainer: function (hiddenType) {
+      var currentPublicationIcon = this._$container.find('#spectrum-current-publication-icon');
+      var currentPublicationLink;
+      var isMinimize = hiddenType === 'spectrum-minimize';
+      var removeClass =  isMinimize ? 'spectrum-close' : 'spectrum-minimize';
+      var currentBias = publications[location.host].fields.bias;
+      removeClass += ' spectrum-not-minimize';
+
+      if (isMinimize && !currentPublicationIcon.attr('src')) {
+        currentPublicationLink = chrome.extension.getURL('../images/icon-' + currentBias + '.png');
+        currentPublicationIcon.attr('src', currentPublicationLink);
+      }
+
+      this._$container.addClass(hiddenType);
+      this._$container.removeClass(removeClass);
+    },
+
+    showArticles: function (articleData, currentPublication, numberArticles) {
       render('../html/main.html', undefined, function ($el) {
-        this._addContainerCb($el, articleData, currentPublication, numberArticles, animate);
+        this._addContainerCb($el, articleData, currentPublication, numberArticles);
       }.bind(this));
     },
 
-    _addContainerCb: function ($html, articleData, currentPublication, numberArticles, animate) {      var currPubData = currentPublication.fields;
-      var currPubData = currentPublication.fields;
+    _addContainerCb: function ($html, articleData, currentPublication, numberArticles) {
+      var currPubData = this.currPubData = currentPublication.fields;
 
       this._$container = $html;
       this._$articlesContainer = $html.find('#spectrum-articles-container');
+      this._$articlesContainer = $html.find('#spectrum-articles-container');
       $('body').append($html);
+
+      if (this._hidden) {
+        this._hideContainer(this._hidden);
+      }
 
       render('../html/publication_detail.html', {
         imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
@@ -136,11 +165,11 @@ $(document).ready(function () {
         target_url: currPubData.base_url,
         publication: currPubData.name,
       }, function ($el) {
-        this._addCurrArticleCB($el, articleData, numberArticles, animate);
+        this._addCurrArticleCB($el, articleData, numberArticles);
       }.bind(this))
     },
 
-    _addCurrArticleCB: function ($html, articleData, numberArticles, animate) {
+    _addCurrArticleCB: function ($html, articleData, numberArticles) {
       var renderUrl, renderConfig, isMultiple;
       var renderCB = function ($el) {
         this._$articlesContainer.append($el);
@@ -188,21 +217,22 @@ $(document).ready(function () {
       }
 
       render(renderUrl, renderConfig, renderCB, isMultiple);
-      this._showArticle(animate);
 
       this._$container.on('click', '.spectrum-more-link a', function () {
         this.getAssociations(3);
       }.bind(this));
-    },
 
-    _showArticle: function (animate) {
-      if (animate) {
-        this._$container.velocity('transition.slideUpIn', {
-          duration: 300,
-        });
-      } else {
-        this._$container.show();
-      }
+      this._$container.on('click', '.spectrum-controller button', function (e) {
+        var typeButton = e.target.name;
+        setLocalStorage('hidden', typeButton);
+        this._hideContainer(typeButton);
+      }.bind(this));
+
+      this._$container.on('click', '.spectrum-expand-icon', function (e) {
+        var typeButton = e.target.name;
+        setLocalStorage('hidden', null);
+        this._showContainer();
+      }.bind(this));
     },
   };
 

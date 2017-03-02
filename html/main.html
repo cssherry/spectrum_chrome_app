@@ -1,4 +1,15 @@
-<div id="spectrum-container">
-  <div id="spectrum-articles-container-top-border"></div>
-  <div id="spectrum-articles-container"></div>
+<div id="spectrum-container" class="spectrum-not-minimize">
+  <div class="spectrum-controller spectrum-show-if-open">
+    <button type="button" name="spectrum-minimize">–</button>
+    <button type="button" name="spectrum-close">X</button>
+  </div>
+
+  <div class="spectrum-controller spectrum-show-if-minimized spectrum-expand-icon">
+    <img alt="Spectrum Rating" id='spectrum-current-publication-icon'>
+  </div>
+
+  <div class="spectrum-container">
+    <div id="spectrum-articles-container-top-border" class="spectrum-expand-icon"></div>
+    <div id="spectrum-articles-container"></div>
+  </div>
 </div>

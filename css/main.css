@@ -5,12 +5,19 @@
 
   box-sizing: border-box;
   width: 100%;
-  height: 140px;
+  height: 155px;
 
-  background: white;
+  background: transparent;
 
   line-height: 1.5;
 }
+
+ .spectrum-container {
+   background: white;
+   height: 100%;
+   width: 100%;
+ }
+
 
 #spectrum-articles-container-top-border {
   box-sizing: border-box;
@@ -61,7 +68,7 @@
   box-sizing: border-box;
 }
 
-.div-non-float-container {
+.spectrum-non-float-container {
   width: 100%;
   height: 100%;
   display: inline-table;
@@ -71,7 +78,7 @@
   width: 35%;
 }
 
-.container-cell {
+.spectrum-container-cell {
   display: table-cell;
   vertical-align: middle;
 }
@@ -142,4 +149,49 @@
 .pull-right {
   float: right;
   color: #D8D8D8;
+}
+
+/* MINIMIZE/CLOSE BUTTONS
+*/
+
+.spectrum-controller {
+  position: relative;
+  text-align: right;
+  right: 15px;
+  top: -10px;
+  background: transparent;
+}
+
+.spectrum-controller button {
+  background: transparent;
+  border: none;
+  color: black;
+  padding: 0;
+  cursor: pointer;
+  padding: 0px 5px;
+}
+
+.spectrum-close,
+.spectrum-minimize .spectrum-articles-container,
+.spectrum-minimize .spectrum-show-if-open,
+.spectrum-not-minimize .spectrum-show-if-minimized {
+  display: none;
+}
+
+.spectrum-minimize#spectrum-container {
+  height: 45px;
+}
+
+.spectrum-show-if-minimized img {
+  height: 30px;
+  border: 1px transparent solid;
+}
+
+.spectrum-show-if-minimized img:hover {
+  border-color: lightgrey;
+  border-radius: 5px;
+}
+
+.spectrum-minimize .spectrum-expand-icon {
+  cursor: pointer;
 }
