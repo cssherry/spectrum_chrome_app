@@ -1,269 +1,234 @@
-var render = function(url, context) {
-  context = context || {};
+$(document).ready(function () {
+  var publications = getLocalStorage('publications');
+  var mediaBias = getLocalStorage('mediaBias');
+  var publicationUrl = 'http://spectrum-backend.herokuapp.com/feeds/publications';
+  var associationApiUrl = 'http://spectrum-backend.herokuapp.com/feeds/test_api';
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
+                    'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+  // Helper Functions ---------------------------------------------------------------------
 
-  var html;
-  $.ajax({
-    url: url,
-    success: function(data) {
+  // Get local storage info
+  function getLocalStorage(name) {
+    var localData = localStorage.getItem('spectrum-' + name);
+    if (!localData) {
+      return undefined;
+    }
+
+    localData = JSON.parse(localData);
+
+    // if older than 7 days, disregard
+    var sevenDays = 1000 * 60 * 24 * 7;
+    if (new Date() - new Date(localData.dateSaved) < sevenDays) {
+      return localData.data;
+    }
+
+    return null;
+  }
+
+  // Set local storage info
+  function setLocalStorage(name, data) {
+    var result = {
+      dateSaved: new Date().toString(),
+      data: data,
+    };
+
+    localStorage.setItem('spectrum-' + name, JSON.stringify(result));
+  }
+
+  // Store publications in hash with base_url
+  // TODO: Consider if we should be only taking last 2 fields of base_url
+  //      (ie ap.org instead of hosted.ap.org)
+  function processPublicationUrls(pubs) {
+    var result = {};
+    pubs.forEach(function (p) {
+      if (!p.fields.skip_scaping) {
+        result[p.fields.base_url] = p;
+      }
+    });
+    return result;
+  }
+
+  // logs errors
+  function logError(message, req, textstatus, errorthrown) {
+    console.log(message);
+    console.log('req', req);
+    console.log('textstatus', textstatus);
+    console.log('errorthrown', errorthrown);
+  }
+
+  // Render bar
+  function render(url, context, callback, isMultiple) {
+    url = chrome.extension.getURL(url);
+    context = context || {};
+
+    var html;
+    $.ajax({
+      url: url,
+      type: 'GET',
+    })
+    .fail(function (req, textstatus, errorthrown) {
+      logError('Failed to get template: ' + url, req, textstatus, errorthrown);
+    })
+    .done(function (data) {
       var template = Handlebars.compile(data);
-      html = template(context);
-    },
-    async: false
-  });
-
-  return $(html);
-};
-
-// Article ---------------------------------------------------------------------
-
-var Article = function(imageUrl, source, headLine, percentage, targetUrl) {
-  var url = chrome.extension.getURL("html/article.html");
-
-  this._$container = render(url, {
-    imageUrl: imageUrl,
-    source: source,
-    headLine: headLine,
-    target_url: targetUrl
-  });
-  this._$meterThumb = this._$container.find('.spectrum-meter-thumb');
-
-  this.moveMeterThumb(percentage);
-
-  return this;
-
-};
-
-Article.prototype.getContainer = function() {
-  return this._$container;
-};
-
-Article.prototype.moveMeterThumb = function(percentage) {
-  if (percentage < 0) {
-    percentage = 0;
-  } if (percentage > 100) {
-    percentage = 100;
+      if (isMultiple) {
+        context.forEach(function (ctx, i) {
+          html = template(ctx);
+          callback[i]($(html));
+        });
+      } else {
+        html = template(context);
+        callback($(html));
+      }
+    });
   }
 
-  this._$meterThumb.velocity({
-    properties: { 'left': percentage + '%' },
-    options: { duration: 500 }
-  });
-};
+  // Spectrum ---------------------------------------------------------------------
 
-// Popup -----------------------------------------------------------------------
-
-var Popup = function(caption, numberOfVotes, percentage) {
-  var url = chrome.extension.getURL("html/popup.html");
-
-  this._$container = render(url,{
-    caption: caption,
-    numberOfVotes: numberOfVotes,
-    percentage: percentage
-  });
-  this._$meterThumb = this._$container.find('.spectrum-meter-thumb');
-
-  this.moveMeterThumb(percentage);
-
-  return this;
-};
-
-Popup.prototype.getContainer = function() {
-  return this._$container;
-};
-
-Popup.prototype.moveMeterThumb = function(percentage) {
-  if (percentage < 0) {
-    percentage = 0;
-  } if (percentage > 100) {
-    percentage = 100;
-  }
-
-  this._$meterThumb.velocity({
-    properties: { 'left': percentage + '%' },
-    options: { duration: 500 }
-  });
-};
-
-var captionForSpectrumIndex = [
-  "LEFT".toUpperCase(),
-  "LEFT OF CENTER".toUpperCase(),
-  "CENTER".toUpperCase(),
-  "RIGHT OF CENTER".toUpperCase(),
-  "RIGHT".toUpperCase()
-];
-
-var percentageForSpectrumIndex = [
-  10,
-  25,
-  50,
-  75,
-  90
-];
-
-var content = {
-  "http://fortune.com/2016/11/19/jeff-sessions-race-civil-rights/": {
-    "num_votes": 356,
-    "spectrum_index": 3,
-    "left_article": {
-      "url": "https://www.washingtonpost.com/news/wonk/wp/2016/11/19/how-jeff-sessions-went-from-fringe-figure-to-mainstream-republican",
-      "image_url": "https://lh4.ggpht.com/5wzR5Tsj5fQ4Igs1R1HMBep99ufDzMr0028lxn2Ji4GTidrwwMM5D74JvGE6nmH6OcKH=w300",
-      "source": "Washington Post",
-      "headline": "How Jeff Sessions went from fringe figure to mainstream Republican",
-      "spectrum_index": 1
+  var spectrum = {
+    init: function (location) {
+      if (publications[location.host]) {
+        this.getAssociations(2);
+      }
     },
-    "right_article":
-    {
-      "url": "http://www.nytimes.com/2016/11/19/us/politics/jeff-sessions-donald-trump-attorney-general.html",
-      "image_url": "https://static01.nyt.com/images/icons/t_logo_291_black.png",
-      "source": "New York Times",
-      "headline": "Jeff Sessions, as Attorney General, Could Overhaul Department He’s Skewered",
-      "spectrum_index": 1
-    }
-  },
 
-  "https://www.washingtonpost.com/news/wonk/wp/2016/11/19/how-jeff-sessions-went-from-fringe-figure-to-mainstream-republican/": {
-    "num_votes": 785,
-    "spectrum_index": 1,
-    "left_article": {
-      "url": "http://www.foxnews.com/politics/2016/11/19/cities-defend-immigration-sanctuary-policies-under-fire-by-trump.html",
-      "image_url": "http://global.fncstatic.com/static/v/all/img/og/og-fn-foxnews.jpg",
-      "source": "Fox News",
-      "headline": "Cities defend immigration sanctuary policies under fire by Trump",
-      "spectrum_index": 4
-    },
-    "right_article":
-    {
-      "url": "http://www.nationalreview.com/article/442316/attorney-general-jeff-sessions-fair-civil-rights",
-      "image_url": "http://www.nationalreview.com/sites/default/files/logo_nr_social_2016_600_D.jpg",
-      "source": "National Review",
-      "headline": "Jeff Sessions Will Be Just Fine on Civil Rights",
-      "spectrum_index": 4
-    }
-  },
-
-  "http://www.foxnews.com/politics/2016/11/19/cities-defend-immigration-sanctuary-policies-under-fire-by-trump.html": {
-    "num_votes": 127,
-    "spectrum_index": 4,
-    "left_article": {
-      "url": "https://theintercept.com/2016/11/18/donald-trumps-mass-deportations-would-cost-billions-and-take-years-to-process",
-      "image_url": "https://openmedia.org/sites/default/files/TheIntercept_logo-23.png",
-      "source": "The Intercept",
-      "headline": "Donald Trump's Mass Deportations Would Cost Billions and Take Years to Process",
-      "spectrum_index": 1
-    },
-    "right_article":
-    {
-      "url": "http://www.reuters.com/article/us-usa-trump-immigration-idUSKBN13B05C",
-      "image_url": "https://pbs.twimg.com/profile_images/3379693153/1008914c0ae75c9efb5f9c0161fce9a2_400x400.png",
-      "source": "Reuters",
-      "headline": "Immigration hardliner says Trump team preparing plans for wall, mulling Muslim registry",
-      "spectrum_index": 2
-    }
-  },
-};
-
-var spectrum = {
-  init: function(currentUrl) {
-    var articleData = content[currentUrl];
-
-    if (articleData) {
-      var url = chrome.extension.getURL('html/main.html');
-      this._$container = render(url);
-      this._$articlesContainer = this._$container.find('#spectrum-articles-container');
-      $('body').append(this._$container);
-
-      this._popup = new Popup(
-        captionForSpectrumIndex[articleData.spectrum_index],
-        articleData.num_votes,
-        percentageForSpectrumIndex[articleData.spectrum_index]
-        );
-      this._$popup = this._popup.getContainer();
-      $('body').append(this._$popup);
-
-      var leftArticle = new Article(
-        articleData.left_article.image_url,
-        articleData.left_article.source.toUpperCase(),
-        articleData.left_article.headline,
-        percentageForSpectrumIndex[articleData.left_article.spectrum_index],
-        articleData.left_article.url
-        );
-
-      var rightArticle = new Article(
-        articleData.right_article.image_url,
-        articleData.right_article.source.toUpperCase(),
-        articleData.right_article.headline,
-        percentageForSpectrumIndex[articleData.right_article.spectrum_index],
-        articleData.right_article.url
-        );
-
-      this._$articlesContainer.append(leftArticle.getContainer(), rightArticle.getContainer());
-
-
-      this._hideIfNecessary(false);
-
-      this._bindEvents();
-    } else {
-      console.log("Unrecognized source: " + currentUrl);
-    }
-  },
-
-  _bindEvents: function() {
-    $(window).scroll(this._onScroll.bind(this));
-  },
-
-  _onScroll: function() {
-    this._hideIfNecessary(true);
-  },
-
-  _hideIfNecessary: function(animate) {
-    var height = $(document).height();
-    var scrollBottom = $(window).scrollTop() + $(window).height();
-
-    if (height * 0.75 < scrollBottom) {
-      this.showArticles(animate);
-    } else {
-      this.hideArticles(animate);
-    }
-  },
-
-  hideArticles: function(animate) {
-    if (this._hidden) {
-      return;
-    }
-    this._hidden = true;
-
-    this._$popup.css('top', 'auto');
-    this._$popup.css('bottom', 0);
-
-    if (animate) {
-      this._$container.velocity('transition.slideDownOut', {
-        duration: 300
+    getAssociations: function (numberArticles) {
+      // TODO: Use numberArticles to return back specific number of articles
+      var _this = this;
+      $.ajax({
+        url: associationApiUrl,
+        type: 'GET',
+      })
+      .fail(function (req, textstatus, errorthrown) {
+        logError('Failed to get associations', req, textstatus, errorthrown);
+      })
+      .done(function (resp) {
+        _this.showArticles(resp, publications[location.host], numberArticles);
       });
-    } else {
-      this._$container.hide();
-    }
-  },
+    },
 
-  showArticles: function(animate) {
-    if (!this._hidden) {
-      return;
-    }
-    this._hidden = false;
+    hideContainer: function (animate) {
+      if (animate) {
+        this._$container.velocity('transition.slideDownOut', {
+          duration: 300,
+        });
+      } else {
+        this._$container.hide();
+      }
+    },
 
-    this._$popup.css('top', 0);
-    this._$popup.css('bottom', 'auto');
+    showArticles: function (articleData, currentPublication, numberArticles, animate) {
+      render('../html/main.html', undefined, function ($el) {
+        this._addContainerCb($el, articleData, currentPublication, numberArticles, animate);
+      }.bind(this));
+    },
 
-    if (animate) {
-      this._$container.velocity('transition.slideUpIn', {
-        duration: 300
-      });
-    } else {
-      this._$container.show();
-    }
+    _addContainerCb: function ($html, articleData, currentPublication, numberArticles, animate) {      var currPubData = currentPublication.fields;
+      var currPubData = currentPublication.fields;
+
+      this._$container = $html;
+      this._$articlesContainer = $html.find('#spectrum-articles-container');
+      $('body').append($html);
+
+      render('../html/publication_detail.html', {
+        imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
+        bias: mediaBias[currPubData.bias],
+        target_url: currPubData.base_url,
+        publication: currPubData.name,
+      }, function ($el) {
+        this._addCurrArticleCB($el, articleData, numberArticles, animate);
+      }.bind(this))
+    },
+
+    _addCurrArticleCB: function ($html, articleData, numberArticles, animate) {
+      var renderUrl, renderConfig, isMultiple;
+      var renderCB = function ($el) {
+        this._$articlesContainer.append($el);
+      }.bind(this);
+
+      if (numberArticles <= 2 || !articleData.length) {
+        this._$articlesContainer.append($html);
+      }
+
+      if (articleData.length) {
+        var singleArticleCB = function ($html) {
+          this._$articlesContainer.append($html);
+        }.bind(this);
+        isMultiple = true;
+        renderConfig= [];
+        renderCB = [];
+        renderUrl = '../html/article.html';
+
+        articleData.forEach(function (article) {
+          // TODO: change number of articles depending on screen size
+          if (renderConfig.length >= numberArticles) {
+            return;
+          }
+
+          var more_text = 'More From the ' + mediaBias[article.publication_bias] + ' »';
+          var publication_date = new Date(article.publication_date);
+
+          renderConfig.push({
+            imageUrl: article.image_url,
+            source: article.publication_name,
+            headLine: article.title,
+            target_url: article.url,
+            more_text: more_text,
+            bias: article.publication_bias,
+            publication_date: monthNames[publication_date.getMonth()] + ' ' + publication_date.getDate(),
+          });
+
+          renderCB.push(singleArticleCB);
+        });
+      } else {
+        renderUrl = '../html/publication_detail.html';
+        renderConfig = {
+          imageUrl: chrome.extension.getURL('../images/unknown.png'),
+        };
+      }
+
+      render(renderUrl, renderConfig, renderCB, isMultiple);
+      this._showArticle(animate);
+
+      this._$container.on('click', '.spectrum-more-link a', function () {
+        this.getAssociations(3);
+      }.bind(this));
+    },
+
+    _showArticle: function (animate) {
+      if (animate) {
+        this._$container.velocity('transition.slideUpIn', {
+          duration: 300,
+        });
+      } else {
+        this._$container.show();
+      }
+    },
+  };
+
+  // Main function ---------------------------------------------------------------------
+  // Only get publications/media bias if not in local storage and less than 7-days old
+  function getAssociations() {
+    var currentLocation = window.location;
+    spectrum.init(currentLocation);
   }
-};
 
-$(document).ready(function() {
-  var currentUrl = window.location.toString();
-  spectrum.init(currentUrl);
+  if (publications && mediaBias) {
+    getAssociations();
+  } else {
+    $.ajax({
+      url: publicationUrl,
+      type: 'GET',
+    })
+    .fail(function (req, textstatus, errorthrown) {
+      logError('Failed to get publications and media biases', req, textstatus, errorthrown);
+    })
+    .done(function (resp) {
+      publications = processPublicationUrls(resp.publications);
+      mediaBias = resp.media_bias;
+      setLocalStorage('publications', publications);
+      setLocalStorage('mediaBias', mediaBias);
+      getAssociations();
+    });
+  }
 });
