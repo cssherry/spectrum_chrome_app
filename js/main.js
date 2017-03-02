@@ -210,7 +210,7 @@ $(document).ready(function () {
           renderCB.push(singleArticleCB);
         });
       } else {
-        renderUrl = '../html/publication_detail.html';
+        renderUrl = '../html/unknown.html';
         renderConfig = {
           imageUrl: chrome.extension.getURL('../images/unknown.png'),
         };

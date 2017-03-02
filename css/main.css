@@ -44,11 +44,49 @@
   width: 100%;
 }
 
-.spectrum-current-article-container, .spectrum-article-container {
+.spectrum-article-container,
+.spectrum-unknown-container {
+  width: 65%;
+}
+
+.spectrum-unknown-container .spectrum-info-container {
+  width: 70%;
+  height: 100%;
+  display: inline-table;
+  margin-left: 15%;
+}
+
+.unknown-article-help {
+  margin-left: 10%;
+}
+
+.unknown-article-help, .unknown-article-help a {
+  color: black;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.unknown-article-help a {
+  text-decoration: underline;
+  text-transform: none;
+}
+
+.spectrum-unknown-container  img.spectrum-article-image {
+  width: 50px;
+  height: 50px;
+}
+
+.spectrum-current-article-container,
+.spectrum-article-container,
+.spectrum-unknown-container {
   float: left;
+  height: 130px;
+}
+
+.spectrum-current-article-container,
+.spectrum-article-container {
   padding: 5px 10px;
   width: 32%;
-  height: 130px;
 }
 
 .spectrum-article-headline a {
@@ -64,7 +102,8 @@
   color: white;
 }
 
-.spectrum-article-container {
+.spectrum-article-container,
+.spectrum-unknown-container {
   box-sizing: border-box;
 }
 
