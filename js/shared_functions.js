@@ -93,9 +93,9 @@ var spectrum = {
     })
     .done(function (resp) {
       if (_this._$container) {
-        _this._addContainerCb(undefined, resp, publications[location.host], numberArticles);
+        _this._addContainerCb(undefined, resp, numberArticles);
       } else {
-        _this.showArticles(resp, publications[location.host], numberArticles);
+        _this.showArticles(resp, numberArticles);
       }
     });
   },
@@ -122,7 +122,7 @@ var spectrum = {
     var currentPublicationLink;
     var isMinimize = hiddenType === 'spectrum-minimize';
     var removeClass = isMinimize ? 'spectrum-close' : 'spectrum-minimize';
-    var currentBias = publications[location.host].fields.bias;
+    var currentBias = this.currentPublication.fields.bias;
     removeClass += ' spectrum-not-minimize';
 
     if (isMinimize && !$currentPublicationIcon.attr('src')) {
