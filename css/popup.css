@@ -66,3 +66,7 @@ body {
 .spectrum-popup-body li a:focus {
     outline: none;
 }
+
+.spectrum-disabled .spectrum-available {
+  display: none;
+}

@@ -6,6 +6,7 @@ function sendMessage (requestObject, callback) {
 }
 
 function addSpectrumEvents() {
+  var currentPublication;
   var $popupBody = $('.spectrum-popup-body');
   var $panelOptions = $popupBody.find('[data-show-type="hidden"]');
   var $iconOptions = $popupBody.find('[data-show-type="hiddenIcon"]');
@@ -16,6 +17,11 @@ function addSpectrumEvents() {
     localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
+    currentPublication = result.currentPublication
+    if (currentPublication) {
+      $popupBody.removeClass('spectrum-disabled');
+    }
+
     if (result.hidden) {
       $panelOptions.filter('.spectrum-hide-panel').hide();
     } else {

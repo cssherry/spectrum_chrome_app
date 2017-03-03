@@ -72,8 +72,9 @@ function render(url, context, callback, isMultiple) {
 var spectrum = {
   init: function (location) {
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
+    this.currentPublication = publications[location.host];
 
-    if (isNotClosed && publications[location.host]) {
+    if (isNotClosed && this.currentPublication) {
       this.getAssociations(2);
     }
 
@@ -108,10 +109,12 @@ var spectrum = {
   },
 
   _showContainer: function () {
-    this._$articleBorder.addClass('spectrum-hide-panel');
-    this._$articleBorder.removeClass('spectrum-expand-icon');
-    this._$container.removeClass('spectrum-close spectrum-minimize');
-    this._$container.addClass('spectrum-not-minimize');
+    if (this._$articleBorder) {
+      this._$articleBorder.addClass('spectrum-hide-panel');
+      this._$articleBorder.removeClass('spectrum-expand-icon');
+      this._$container.removeClass('spectrum-close spectrum-minimize');
+      this._$container.addClass('spectrum-not-minimize');
+    }
   },
 
   _hideContainer: function (hiddenType) {
@@ -133,14 +136,14 @@ var spectrum = {
     this._$container.removeClass(removeClass);
   },
 
-  showArticles: function (articleData, currentPublication, numberArticles) {
+  showArticles: function (articleData, numberArticles) {
     render('../html/main.html', undefined, function ($el) {
-      this._addContainerCb($el, articleData, currentPublication, numberArticles);
+      this._addContainerCb($el, articleData, numberArticles);
     }.bind(this));
   },
 
-  _addContainerCb: function ($html, articleData, currentPublication, numberArticles) {
-    var currPubData = currentPublication.fields;
+  _addContainerCb: function ($html, articleData, numberArticles) {
+    var currPubData = this.currentPublication.fields;
 
     if ($html) {
       this._$container = $html;

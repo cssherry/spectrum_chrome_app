@@ -49,8 +49,9 @@ $(document).ready(function () {
       if (request.action === 'getLocalStorage') {
         var results = {}
         request.localValues.forEach(function (lv) {
-          results[lv] = getLocalStorage(lv);;
+          results[lv] = getLocalStorage(lv);
         });
+        results.currentPublication = spectrumInstance.currentPublication;
         sendResponse(results);
       }
     });
