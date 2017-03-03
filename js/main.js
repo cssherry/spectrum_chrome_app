@@ -33,7 +33,7 @@ $(document).ready(function () {
       }
     });
 
-    chrome.runtime.onMessage.addListener(function (request){
+    chrome.runtime.onMessage.addListener(function (request) {
       if (request.action === 'showSpectrumPanel') {
         setLocalStorage(request.showType, null);
         if (request.showType === 'hidden') {
@@ -45,7 +45,7 @@ $(document).ready(function () {
       }
     });
 
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.action === 'getLocalStorage') {
         var results = {}
         request.localValues.forEach(function (lv) {

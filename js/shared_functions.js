@@ -170,7 +170,7 @@ var spectrum = {
       this._$articlesContainer.empty();
     }
 
-    var hiddenType = getLocalStorage('hidden')
+    var hiddenType = getLocalStorage('hidden');
     if (hiddenType) {
       this._hideContainer(hiddenType);
     }

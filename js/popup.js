@@ -17,7 +17,7 @@ function addSpectrumEvents() {
     localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
-    currentPublication = result.currentPublication
+    currentPublication = result.currentPublication;
     if (currentPublication) {
       $popupBody.removeClass('spectrum-disabled');
     }
@@ -58,7 +58,7 @@ function addSpectrumEvents() {
     var showType = e.target.dataset.showType;
     var requestObject = {
       action: 'showSpectrumPanel',
-      showType: showType
+      showType: showType,
     };
     toggleVisibility(showType);
     sendMessage(requestObject);
