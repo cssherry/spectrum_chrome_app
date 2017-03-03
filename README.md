@@ -7,9 +7,8 @@
 # Features
 ## Icon
 - [ ] Icon color indicate bias
-- [ ] "Check this article for bias and alternatives" (opens spectrum bar)
-- [ ] "Don't automatically show for articles" (hides spectrum bar by default)
-- [ ] "Don't show spectrum icon on lower right" (hides spectrum bar by default)
+- [x] Hide/show panel
+- [x] Hide/show icons
 - [ ] link to "How do we measure bias", "Get the iOS app", and "Get involved with Spectrum"
 
   ![icon details](/images/07_minimized state.png)

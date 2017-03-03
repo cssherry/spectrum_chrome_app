@@ -71,14 +71,16 @@ function render(url, context, callback, isMultiple) {
 
 var spectrum = {
   init: function (location) {
-    this._hidden = getLocalStorage('hidden');
+    var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
 
-    if (this._hidden !== 'spectrum-close' && publications[location.host]) {
+    if (isNotClosed && publications[location.host]) {
       this.getAssociations(2);
     }
+
+    return this;
   },
 
-  getAssociations: function (numberArticles, skipContainer) {
+  getAssociations: function (numberArticles) {
     // TODO: Use numberArticles to return back specific number of articles
     var _this = this;
     $.ajax({
@@ -89,12 +91,20 @@ var spectrum = {
       logError('Failed to get associations', req, textstatus, errorthrown);
     })
     .done(function (resp) {
-      if (skipContainer) {
+      if (_this._$container) {
         _this._addContainerCb(undefined, resp, publications[location.host], numberArticles);
       } else {
         _this.showArticles(resp, publications[location.host], numberArticles);
       }
     });
+  },
+
+  _hideIcon: function () {
+    this._$container.addClass('spectrum-no-button');
+  },
+
+  _showIcon: function () {
+    this._$container.removeClass('spectrum-no-button');
   },
 
   _showContainer: function () {
@@ -105,16 +115,16 @@ var spectrum = {
   },
 
   _hideContainer: function (hiddenType) {
-    var currentPublicationIcon = this._$container.find('#spectrum-current-publication-icon');
+    var $currentPublicationIcon = this._$container.find('#spectrum-current-publication-icon');
     var currentPublicationLink;
     var isMinimize = hiddenType === 'spectrum-minimize';
     var removeClass = isMinimize ? 'spectrum-close' : 'spectrum-minimize';
     var currentBias = publications[location.host].fields.bias;
     removeClass += ' spectrum-not-minimize';
 
-    if (isMinimize && !currentPublicationIcon.attr('src')) {
+    if (isMinimize && !$currentPublicationIcon.attr('src')) {
       currentPublicationLink = chrome.extension.getURL('../images/icon-' + currentBias + '.png');
-      currentPublicationIcon.attr('src', currentPublicationLink);
+      $currentPublicationIcon.attr('src', currentPublicationLink);
     }
 
     this._$articleBorder.addClass('spectrum-expand-icon');
@@ -140,7 +150,7 @@ var spectrum = {
 
       // Add events here so only add once
       this._$container.on('click.spectrumReload', '.spectrum-more-link a', function () {
-        this.getAssociations(3, true);
+        this.getAssociations(3);
       }.bind(this));
 
       this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
@@ -157,8 +167,13 @@ var spectrum = {
       this._$articlesContainer.empty();
     }
 
-    if (this._hidden) {
-      this._hideContainer(this._hidden);
+    var hiddenType = getLocalStorage('hidden')
+    if (hiddenType) {
+      this._hideContainer(hiddenType);
+    }
+
+    if (getLocalStorage('hiddenIcon')) {
+      this._hideIcon();
     }
 
     render('../html/publication_detail.html', {

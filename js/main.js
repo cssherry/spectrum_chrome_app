@@ -20,7 +20,40 @@ $(document).ready(function () {
   // Only get publications/media bias if not in local storage and less than 7-days old
   function getAssociations() {
     var currentLocation = window.location;
-    spectrum.init(currentLocation);
+    var spectrumInstance = spectrum.init(currentLocation);
+
+    chrome.runtime.onMessage.addListener(function (request){
+      if (request.action === 'hideSpectrumPanel') {
+        setLocalStorage(request.showType, request.typeButton);
+        if (request.showType === 'hidden') {
+          spectrumInstance._hideContainer(request.typeButton);
+        } else {
+          spectrumInstance._hideIcon();
+        }
+      }
+    });
+
+    chrome.runtime.onMessage.addListener(function (request){
+      if (request.action === 'showSpectrumPanel') {
+        setLocalStorage(request.showType, null);
+        if (request.showType === 'hidden') {
+          spectrumInstance._showContainer();
+          spectrumInstance.getAssociations(2);
+        } else {
+          spectrumInstance._showIcon();
+        }
+      }
+    });
+
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+      if (request.action === 'getLocalStorage') {
+        var results = {}
+        request.localValues.forEach(function (lv) {
+          results[lv] = getLocalStorage(lv);;
+        });
+        sendResponse(results);
+      }
+    });
   }
 
   if (publications && mediaBias) {

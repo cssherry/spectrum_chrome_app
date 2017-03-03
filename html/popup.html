@@ -3,25 +3,24 @@
   <head>
     <title>Spectrum Popup</title>
     <link href="../css/popup.min.css" rel="stylesheet">
+    <script src="../js/lib/jquery-3.1.1.min.js"></script>
     <script src="../js/popup.min.js"></script>
   </head>
-  <body class='popup-body' style="width: 400px">
+  <body class='spectrum-popup-body' style="width: 400px">
     <div class="middle-align">
       <img src="../images/icon.png" alt="Spectrum Logo">
       <h1>Spectrum</h1>
     </div>
     <hr>
     <ul>
-      <li>Check this article for bias and alternatives</li>
+      <li class="spectrum-show-option" data-show-type="hidden">Show spectrum panel</li>
+      <li class="spectrum-hide-panel" data-show-type="hidden" data-hide-type="spectrum-close">Hide spectrum panel</li>
+      <li class="spectrum-show-option" data-show-type="hiddenIcon">Show spectrum icons</li>
+      <li class="spectrum-hide-panel" data-show-type="hiddenIcon" data-hide-type="spectrum-no-button">Hide spectrum icons</li>
     </ul>
     <hr>
     <ul>
-      <li>Don’t automatically show for articles</li>
-      <li>Don’t show spectrum icon in lower right</li>
-    </ul>
-    <hr>
-    <ul>
-      <li><a>How do we measure bias?</a></li>
+      <li><a href="https://mediabiasfactcheck.com/methodology/" target="_blank">How do we measure bias?</a></li>
       <li><a>Get the iOS app</a></li>
       <li><a>Get involved with Spectrum</a></li>
     </ul>

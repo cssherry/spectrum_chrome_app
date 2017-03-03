@@ -3,16 +3,16 @@ body {
   background-color: #FAFAFA;
 }
 
-.popup-body {
+.spectrum-popup-body {
   width: 400px;
 }
 
-.popup-body hr {
+.spectrum-popup-body hr {
   background-color: #ABABAB;
   margin: 0;
 }
 
-.popup-body h1 {
+.spectrum-popup-body h1 {
   vertical-align: middle;
   color: #53298B;
   display: inline-block;
@@ -25,33 +25,44 @@ body {
   white-space: nowrap;
 }
 
-.popup-body img {
+.spectrum-popup-body img {
   vertical-align: middle;
   margin: 5px;
   height: 40px;
   width: 40px
 }
 
-.popup-body ul {
+.spectrum-popup-body ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   width: 100%;
 }
 
-.popup-body li {
+.spectrum-popup-body li {
   display: block;
   color: black;
   padding: 8px 16px;
+  cursor: pointer;
 }
 
-.popup-body li a {
+.spectrum-popup-body li a {
   display: block;
   text-decoration: none;
   color: #2E79B9;
 }
 
 /* Change the link color on hover */
-.popup-body li:hover {
+.spectrum-popup-body li:hover {
     background-color: lightgray;
+}
+
+/* Change the link color on hover */
+.spectrum-popup-body li:hover a {
+    text-decoration: underline;
+}
+
+/* Don't have ugly highlight upon panel open */
+.spectrum-popup-body li a:focus {
+    outline: none;
 }
