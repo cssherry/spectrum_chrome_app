@@ -1,28 +1,25 @@
 <div class="spectrum-article-container">
+  <div class="spectrum-non-float-container">
 
-  <div class="spectrum-article-image-container">
-    <img class="spectrum-article-image" src="{{imageUrl}}">
-  </div>
-  <div class="spectrum-article-body">
-
-    <div class="spectrum-article-source">
-      <a href="{{target_url}}">{{source}}</a>
+    <div class="spectrum-article-image-container spectrum-container-cell">
+      <a href="{{target_url}}" target="_blank">
+        <img class="spectrum-article-image" src="{{imageUrl}}">
+      </a>
     </div>
 
-    <div class="spectrum-article-headline">
-      <a href="{{target_url}}">{{headLine}}</a>
-    </div>
+    <div class="spectrum-article-body spectrum-container-cell">
 
-    <div class="spectrum-meter-container">
-      <div class="spectrum-meter-track">
-        <div class="spectrum-meter-separator"></div>
-        <div class="spectrum-meter-separator"></div>
-        <div class="spectrum-meter-separator"></div>
-        <div class="spectrum-meter-separator"></div>
-        <div class="spectrum-meter-separator"></div>
-        <div class="spectrum-meter-separator"></div>
+      <div class="spectrum-article-source">
+        {{source}}
+        <span class="pull-right">{{publication_date}}</span>
       </div>
-      <div class="spectrum-meter-thumb"></div>
+
+      <div class="spectrum-article-headline">
+        <a href="{{target_url}}" target="_blank">{{headLine}}</a>
+      </div>
+
+      <div class="spectrum-more-link" data-bias="{{bias}}"><a>{{more_text}}</a></div>
+
     </div>
 
   </div>
