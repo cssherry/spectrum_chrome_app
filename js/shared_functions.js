@@ -88,8 +88,9 @@ var spectrum = {
   getAssociations: function (numberArticles) {
     // TODO: Use numberArticles to return back specific number of articles
     var _this = this;
+    var urlToQuery = encodeURIComponent(location.href.split("?")[0])
     $.ajax({
-      url: associationApiUrl,
+      url: associationApiUrl + "?url=" + encodeURIComponent(location.href.split("?")[0]),
       type: 'GET',
     })
     .fail(function (req, textstatus, errorthrown) {
