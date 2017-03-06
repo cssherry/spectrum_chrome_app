@@ -74,7 +74,9 @@ function render(url, context, callback, isMultiple) {
 var spectrum = {
   init: function (location) {
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-    this.currentPublication = publications[location.host];
+    domain = location.host.replace('www.', '');
+    this.currentPublication = publications[domain];
+
 
     if (isNotClosed && this.currentPublication) {
       this.getAssociations(2);
@@ -217,11 +219,16 @@ var spectrum = {
           return;
         }
 
-        var more_text = 'More From the ' + mediaBias[article.publication_bias] + ' »';
+        var more_text = 'More ' + mediaBias[article.publication_bias] + ' Articles »';
         var publication_date = new Date(article.publication_date);
 
+        var imageUrl = article.image_url || article.publication_logo;
+        if (location.host == "www.nytimes.com") {
+          imageUrl = article.publication_logo;
+        }
+
         renderConfig.push({
-          imageUrl: article.image_url,
+          imageUrl: imageUrl,
           source: article.publication_name,
           headLine: article.title,
           target_url: article.url,
