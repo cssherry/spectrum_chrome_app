@@ -1,7 +1,7 @@
 #spectrum-container {
   position: fixed;
   bottom: 0;
-  z-index: 10000;
+  z-index: 1000000000000000;
 
   box-sizing: border-box;
   width: 100%;
