@@ -1,8 +1,10 @@
 var publications = getLocalStorage('publications');
-var mediaBias = getLocalStorage('mediaBias');
-var associationApiUrl = 'http://spectrum-backend.herokuapp.com/feeds/test_api';
+var mediaBias = {L: "Left-Wing", C: "Moderate", LC: "Left-Leaning", R: "Right-Wing", RC: "Right-Leaning"}
+var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+var numOfArticlesToShow = 3
 
 // Get local storage info
 function getLocalStorage(name) {
