@@ -79,7 +79,7 @@ var spectrum = {
 
 
     if (isNotClosed && this.currentPublication) {
-      this.getAssociations(2);
+      this.getAssociations(numOfArticlesToShow);
     }
 
     return this;
@@ -157,7 +157,7 @@ var spectrum = {
 
       // Add events here so only add once
       this._$container.on('click.spectrumReload', '.spectrum-more-link a', function () {
-        this.getAssociations(3);
+        this.getAssociations(numOfArticlesToShow);
       }.bind(this));
 
       this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
@@ -207,7 +207,7 @@ var spectrum = {
       this._$articlesContainer.append($el);
     }.bind(this);
 
-    if (numberArticles <= 2 || !articleData.length) {
+    if (numberArticles <= numOfArticlesToShow || !articleData.length) {
       this._$articlesContainer.append($html);
     }
 
