@@ -182,12 +182,20 @@ var spectrum = {
     if (getLocalStorage('hiddenIcon')) {
       this._hideIcon();
     }
+    var colorMap = {
+      "LC": "#9494EA",
+      "L": "#F6A623",
+      "C": "#F6A623",
+      "RC": "#E77676",
+      "R": "#DC1616"
+    }
 
     render('../html/publication_detail.html', {
       imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
       bias: mediaBias[currPubData.bias],
       target_url: currPubData.base_url,
       publication: currPubData.name,
+      backgroundColor: colorMap[currPubData.bias]
     }, function ($el) {
       this._addCurrArticleCB($el, articleData, numberArticles);
     }.bind(this));
