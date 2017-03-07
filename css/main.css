@@ -199,11 +199,11 @@
 a.spectrum-article-headline {
   color: #474747 !important;
 }
-a:hover {
+#spectrum-container a:hover {
   color: inherit !important;
 }
 
-.pull-right {
+.spectrum-article-source .pull-right {
   float: right;
   color: #999999;
 }
