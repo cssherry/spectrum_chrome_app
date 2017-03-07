@@ -6,7 +6,7 @@
 
 # Features
 ## Icon
-- [x] Icon color indicate bias
+- [ ] Icon color indicate bias
 - [x] Hide/show panel
 - [x] Hide/show icons
 - [ ] link to "How do we measure bias", "Get the iOS app", and "Get involved with Spectrum" [ON HOLD]

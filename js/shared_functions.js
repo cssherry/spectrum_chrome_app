@@ -1,5 +1,5 @@
 var publications = getLocalStorage('publications');
-var mediaBias = {L: "Left-Wing", C: "Moderate", LC: "Left-Leaning", R: "Right-Wing", RC: "Right-Leaning"}
+var mediaBias = getLocalStorage('mediaBias');
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -74,7 +74,7 @@ function render(url, context, callback, isMultiple) {
 var spectrum = {
   init: function (location) {
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-    domain = location.host.replace('www.', '');
+    var domain = location.host.replace('www.', '');
     this.currentPublication = publications[domain];
 
 
@@ -88,9 +88,9 @@ var spectrum = {
   getAssociations: function (numberArticles) {
     // TODO: Use numberArticles to return back specific number of articles
     var _this = this;
-    var urlToQuery = encodeURIComponent(location.href.split("?")[0])
+    var urlToQuery = encodeURIComponent(location.href.split("?")[0]);
     $.ajax({
-      url: associationApiUrl + "?url=" + encodeURIComponent(location.href.split("?")[0]),
+      url: associationApiUrl + "?url=" + urlToQuery,
       type: 'GET',
     })
     .fail(function (req, textstatus, errorthrown) {
@@ -158,7 +158,7 @@ var spectrum = {
 
       // Add events here so only add once
       this._$container.on('click.spectrumReload', '.spectrum-more-link a', function () {
-        this.getAssociations(numOfArticlesToShow);
+        this.getAssociations(3);
       }.bind(this));
 
       this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
@@ -183,34 +183,25 @@ var spectrum = {
     if (getLocalStorage('hiddenIcon')) {
       this._hideIcon();
     }
-    var colorMap = {
-      "LC": "#9494EA",
-      "L": "#F6A623",
-      "C": "#F6A623",
-      "RC": "#E77676",
-      "R": "#DC1616"
-    }
 
     render('../html/publication_detail.html', {
       imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
       bias: mediaBias[currPubData.bias],
+      biasAbbr: currPubData.bias,
       target_url: currPubData.base_url,
-      publication: currPubData.name,
-      backgroundColor: colorMap[currPubData.bias]
+      publication: currPubData.name
     }, function ($el) {
       this._addCurrArticleCB($el, articleData, numberArticles);
     }.bind(this));
   },
 
-  _addCurrArticleCB: function ($html, articleData, numberArticles) {
+  _addCurrArticleCB: function ($publicationHtml, articleData, numberArticles) {
     var renderUrl, renderConfig, isMultiple;
     var renderCB = function ($el) {
       this._$articlesContainer.append($el);
     }.bind(this);
 
-    if (numberArticles <= numOfArticlesToShow || !articleData.length) {
-      this._$articlesContainer.append($html);
-    }
+    this._$articlesContainer.append($publicationHtml);
 
     if (articleData.length) {
       var singleArticleCB = function ($el) {

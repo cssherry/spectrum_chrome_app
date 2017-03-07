@@ -99,10 +99,29 @@
 }
 
 .spectrum-current-article-container {
-  background-color: #9494EA;
   color: white;
   font-family: OpenSans !important;
   font-size: 14px !important;
+}
+
+.spectrum-current-article-container[data-bias=L] {
+  background-color: #1616E1;
+}
+
+.spectrum-current-article-container[data-bias=LC] {
+  background-color: #9494EA;
+}
+
+.spectrum-current-article-container[data-bias=C] {
+  background-color: #F6A623;
+}
+
+.spectrum-current-article-container[data-bias=RC] {
+  background-color: #E77676;
+}
+
+.spectrum-current-article-container[data-bias=R] {
+  background-color: #DC1616;
 }
 
 .spectrum-current-article-container .spectrum-article-source a {
@@ -149,9 +168,6 @@
   font-family: OpenSans;
 }
 
-.spectrum-more-link a {
-  cursor: pointer;
-}
 
 .spectrum-more-link[data-bias=L] a {
   color: #1616E1;
@@ -171,6 +187,10 @@
 
 .spectrum-more-link[data-bias=R] a {
   color: #DC1616;
+}
+
+.spectrum-more-link a {
+  cursor: pointer;
 }
 
 .spectrum-article-body {
