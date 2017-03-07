@@ -1,8 +1,10 @@
 var publications = getLocalStorage('publications');
 var mediaBias = getLocalStorage('mediaBias');
-var associationApiUrl = 'http://spectrum-backend.herokuapp.com/feeds/test_api';
+var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+var numOfArticlesToShow = 3
 
 // Get local storage info
 function getLocalStorage(name) {
@@ -72,10 +74,12 @@ function render(url, context, callback, isMultiple) {
 var spectrum = {
   init: function (location) {
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-    this.currentPublication = publications[location.host];
+    var domain = location.host.replace('www.', '');
+    this.currentPublication = publications[domain];
+
 
     if (isNotClosed && this.currentPublication) {
-      this.getAssociations(2);
+      this.getAssociations(numOfArticlesToShow);
     }
 
     return this;
@@ -84,8 +88,9 @@ var spectrum = {
   getAssociations: function (numberArticles) {
     // TODO: Use numberArticles to return back specific number of articles
     var _this = this;
+    var urlToQuery = encodeURIComponent(location.href.split("?")[0]);
     $.ajax({
-      url: associationApiUrl,
+      url: associationApiUrl + "?url=" + urlToQuery,
       type: 'GET',
     })
     .fail(function (req, textstatus, errorthrown) {
@@ -182,22 +187,21 @@ var spectrum = {
     render('../html/publication_detail.html', {
       imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
       bias: mediaBias[currPubData.bias],
+      biasAbbr: currPubData.bias,
       target_url: currPubData.base_url,
-      publication: currPubData.name,
+      publication: currPubData.name
     }, function ($el) {
       this._addCurrArticleCB($el, articleData, numberArticles);
     }.bind(this));
   },
 
-  _addCurrArticleCB: function ($html, articleData, numberArticles) {
+  _addCurrArticleCB: function ($publicationHtml, articleData, numberArticles) {
     var renderUrl, renderConfig, isMultiple;
     var renderCB = function ($el) {
       this._$articlesContainer.append($el);
     }.bind(this);
 
-    if (numberArticles <= 2 || !articleData.length) {
-      this._$articlesContainer.append($html);
-    }
+    this._$articlesContainer.append($publicationHtml);
 
     if (articleData.length) {
       var singleArticleCB = function ($el) {
@@ -215,11 +219,16 @@ var spectrum = {
           return;
         }
 
-        var more_text = 'More From the ' + mediaBias[article.publication_bias] + ' »';
+        var more_text = 'More ' + mediaBias[article.publication_bias] + ' Articles »';
         var publication_date = new Date(article.publication_date);
 
+        var imageUrl = article.image_url || article.publication_logo;
+        if (location.host == "www.nytimes.com") {
+          imageUrl = article.publication_logo;
+        }
+
         renderConfig.push({
-          imageUrl: article.image_url,
+          imageUrl: imageUrl,
           source: article.publication_name,
           headLine: article.title,
           target_url: article.url,

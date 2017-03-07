@@ -9,12 +9,12 @@
 - [ ] Icon color indicate bias
 - [x] Hide/show panel
 - [x] Hide/show icons
-- [ ] link to "How do we measure bias", "Get the iOS app", and "Get involved with Spectrum"
+- [ ] link to "How do we measure bias", "Get the iOS app", and "Get involved with Spectrum" [ON HOLD]
 
   ![icon details](/images/07_minimized state.png)
 
 ## Spectrum bar
-- [ ] Show bias with description of why
+- [ ] Show bias with description of why [ON HOLD]
 - [x] Show 2 other articles from other side
 - [x] Allow user to close bar
 - [x] Hide bar, show icon-greyscale and allow user to expand if click on hidden bar or icon

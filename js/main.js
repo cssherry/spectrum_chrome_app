@@ -1,7 +1,8 @@
 $(document).ready(function () {
   var publications = getLocalStorage('publications');
   var mediaBias = getLocalStorage('mediaBias');
-  var publicationUrl = 'http://spectrum-backend.herokuapp.com/feeds/publications';
+  var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
+
 
   // Store publications in hash with base_url
   // TODO: Consider if we should be only taking last 2 fields of base_url
@@ -9,7 +10,7 @@ $(document).ready(function () {
   function processPublicationUrls(pubs) {
     var result = {};
     pubs.forEach(function (p) {
-      if (!p.fields.skip_scaping) {
+      if (!p.fields.skip_scraping) {
         result[p.fields.base_url] = p;
       }
     });
