@@ -1,7 +1,7 @@
 body {
   margin: 0px;
-  background-color: #FAFAFA;
-}
+  background-color: #fafafa;
+} 
 
 .spectrum-popup-body {
   width: 400px;
@@ -28,12 +28,12 @@ body {
 .spectrum-popup-body img {
   vertical-align: middle;
   margin: 5px;
-  height: 40px;
+  height: 40px; 
   width: 40px
 }
 
 .spectrum-popup-body ul {
-  list-style-type: none;
+  list-style-type: none; 
   margin: 0;
   padding: 0;
   width: 100%;
@@ -42,24 +42,25 @@ body {
 .spectrum-popup-body li {
   display: block;
   color: black;
-  padding: 8px 16px;
   cursor: pointer;
 }
 
 .spectrum-popup-body li a {
+    color: #000;
   display: block;
+  padding: 8px 16px;
   text-decoration: none;
-  color: #2E79B9;
 }
 
 /* Change the link color on hover */
-.spectrum-popup-body li:hover {
-    background-color: lightgray;
+
+.spectrum-popup-body li:hover{
+  background-color: blue;
+  color: #fff;
 }
 
-/* Change the link color on hover */
-.spectrum-popup-body li:hover a {
-    text-decoration: underline;
+.spectrum-popup-body li a:hover{
+  color: #fff;
 }
 
 /* Don't have ugly highlight upon panel open */
