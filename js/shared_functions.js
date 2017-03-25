@@ -1,5 +1,3 @@
-var publications = getLocalStorage('publications', 'March 25, 2017');
-var mediaBias = getLocalStorage('mediaBias');
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -88,9 +86,14 @@ function render(url, context, callback, isMultiple) {
 
 var spectrum = {
   init: function (location) {
+    // Add mediaBias and publications
+    this.publications = getLocalStorage('publications', 'March 25, 2017');
+    this.mediaBias = getLocalStorage('mediaBias');
+
+
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
     var domain = cleanUrl(location.hostname);
-    this.currentPublication = publications[domain];
+    this.currentPublication = this.publications[domain];
 
     if (isNotClosed && this.currentPublication) {
       this.getAssociations(numOfArticlesToShow);
@@ -200,7 +203,7 @@ var spectrum = {
 
     render('../html/publication_detail.html', {
       imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
-      bias: mediaBias[currPubData.bias],
+      bias: this.mediaBias[currPubData.bias],
       biasAbbr: currPubData.bias,
       target_url: currPubData.base_url,
       publication: currPubData.name,
@@ -233,7 +236,7 @@ var spectrum = {
           return;
         }
 
-        var moreText = 'More ' + mediaBias[article.publication_bias] + ' Articles »';
+        var moreText = 'More ' + this.mediaBias[article.publication_bias] + ' Articles »';
         var publicationDate = new Date(article.publication_date);
 
         var imageUrl = article.image_url || article.publication_logo;
@@ -252,7 +255,7 @@ var spectrum = {
         });
 
         renderCB.push(singleArticleCB);
-      });
+      }.bind(this));
     } else {
       renderUrl = '../html/unknown.html';
       renderConfig = {
