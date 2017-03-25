@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var publications = getLocalStorage('publications');
+  var publications = getLocalStorage('publications', 'March 25, 2017');
   var mediaBias = getLocalStorage('mediaBias');
   var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
 
@@ -11,7 +11,7 @@ $(document).ready(function () {
     var result = {};
     pubs.forEach(function (p) {
       if (!p.fields.skip_scraping) {
-        result[p.fields.base_url] = p;
+        result[cleanUrl(p.fields.base_url)] = p;
       }
     });
     return result;
@@ -48,7 +48,7 @@ $(document).ready(function () {
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.action === 'getLocalStorage') {
-        var results = {}
+        var results = {};
         request.localValues.forEach(function (lv) {
           results[lv] = getLocalStorage(lv);
         });
