@@ -1,4 +1,3 @@
-$(document).ready(function () {
   var publications = getLocalStorage('publications', 'March 25, 2017');
   var mediaBias = getLocalStorage('mediaBias');
   var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
@@ -76,4 +75,3 @@ $(document).ready(function () {
       getAssociations();
     });
   }
-});
