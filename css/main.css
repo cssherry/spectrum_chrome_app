@@ -2,6 +2,7 @@
   position: fixed;
   bottom: 0;
   z-index: 1000000000000000;
+  font-family: OpenSans, Arial, sans-serif !important;
 
   box-sizing: border-box;
   width: 100%;
@@ -87,7 +88,7 @@
 .spectrum-article-container {
   padding: 5px 10px;
   width: 28%;
-  font-family: OpenSans !important;
+  font-family: OpenSans, Arial, sans-serif !important;
 }
 .spectrum-current-article-container {
   width: 10%;
@@ -96,11 +97,12 @@
 
 .spectrum-article-headline a {
   text-transform: none;
+  color: #474747;
 }
 
 .spectrum-current-article-container {
   color: white;
-  font-family: OpenSans !important;
+  font-family: OpenSans, Arial, sans-serif !important;
   font-size: 14px !important;
 }
 
@@ -165,28 +167,28 @@
 .spectrum-more-link,
 .spectrum-more-link a {
   font-size: 14px;
-  font-family: OpenSans;
+  font-family: OpenSans, Arial, sans-serif !important;
 }
 
 
 .spectrum-more-link[data-bias=L] a {
-  color: #1616E1;
+  color: #1616E1 !important;
 }
 
 .spectrum-more-link[data-bias=LC] a {
-  color: #9494EA;
+  color: #9494EA !important;
 }
 
 .spectrum-more-link[data-bias=C] a {
-  color: #F6A623;
+  color: #F6A623 !important;
 }
 
 .spectrum-more-link[data-bias=RC] a {
-  color: #E77676;
+  color: #E77676 !important;
 }
 
 .spectrum-more-link[data-bias=R] a {
-  color: #DC1616;
+  color: #DC1616 !important;
 }
 
 .spectrum-more-link a {
@@ -201,7 +203,7 @@
 .spectrum-article-source {
   margin-bottom: 5px;
 
-  font-family: OpenSans !important;
+  font-family: OpenSans, Arial, sans-serif !important;
   font-size: 15px !important;
   color: #474747 !important;
 }
@@ -212,7 +214,7 @@
   height: 3em; /* todo - get ellipses */
   overflow: hidden;
 
-  font-family: OpenSans !important;
+  font-family: OpenSans, Arial, sans-serif !important;
   font-size: 15px;
   color: #474747 !important;
 }
@@ -220,7 +222,8 @@ a.spectrum-article-headline {
   color: #474747 !important;
 }
 #spectrum-container a:hover {
-  color: inherit !important;
+  opacity: .8 !important;
+  color: inherit;
 }
 
 .spectrum-article-source .pull-right {
@@ -235,8 +238,11 @@ a.spectrum-article-headline {
   position: relative;
   text-align: right;
   right: 15px;
-  top: -10px;
+  top: -5px;
   background: transparent;
+  color: black;
+  font-size: 13px;
+  font-family: OpenSans, Arial, sans-serif !important;
 }
 
 .spectrum-hide-panel {
@@ -249,6 +255,8 @@ a.spectrum-article-headline {
   color: black;
   padding: 0;
   padding: 0px 5px;
+  font-size: 13px;
+  font-family: OpenSans, Arial, sans-serif !important;
 }
 
 .spectrum-close,
@@ -256,6 +264,14 @@ a.spectrum-article-headline {
 .spectrum-minimize .spectrum-show-if-open,
 .spectrum-not-minimize .spectrum-show-if-minimized {
   display: none;
+}
+
+.spectrum-show-if-minimized {
+  height: 34px;
+}
+
+.spectrum-show-if-open {
+  height: 19px;
 }
 
 .spectrum-no-button .spectrum-controller {
@@ -268,9 +284,12 @@ a.spectrum-article-headline {
 
 .spectrum-show-if-minimized img {
   height: 30px;
+  width: 30px;
   display: initial;
-  width: auto;
   border: 1px transparent solid;
+     -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
 }
 
 .spectrum-show-if-minimized img:hover {
