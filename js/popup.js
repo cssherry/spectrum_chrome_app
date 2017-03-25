@@ -1,4 +1,4 @@
-function sendMessage (requestObject, callback) {
+function sendMessage(requestObject, callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var currentTab = tabs[0].id;
     chrome.tabs.sendMessage(currentTab, requestObject, callback);

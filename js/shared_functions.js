@@ -1,13 +1,15 @@
-var publications = getLocalStorage('publications');
+var publications = getLocalStorage('publications', 'March 25, 2017');
 var mediaBias = getLocalStorage('mediaBias');
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
-var numOfArticlesToShow = 3
+var numOfArticlesToShow = 3;
 
 // Get local storage info
-function getLocalStorage(name) {
+// name: identifier/variable name for data (will be transformed and saved as 'spectrum-NAME')
+// _earliestAcceptableDate: OPTIONAL string that can be parsed into date (eg 'March 25, 2017')
+function getLocalStorage(name, _earliestAcceptableDate) {
   var localData = localStorage.getItem('spectrum-' + name);
   if (!localData) {
     return undefined;
@@ -17,7 +19,15 @@ function getLocalStorage(name) {
 
   // if older than 7 days, disregard
   var sevenDays = 1000 * 60 * 24 * 7;
-  if (new Date() - new Date(localData.dateSaved) < sevenDays) {
+
+  // If there's a _earliestAcceptableDate, figure out if it's older than dateSaved (good)
+  var dateSavedAcceptable = true;
+  var dateSaved = new Date(localData.dateSaved);
+  if (_earliestAcceptableDate) {
+    dateSavedAcceptable = new Date(_earliestAcceptableDate) < dateSaved;
+  }
+
+  if (dateSavedAcceptable && new Date() - dateSaved < sevenDays) {
     return localData.data;
   }
 
@@ -35,6 +45,11 @@ function setLocalStorage(name, data) {
 }
 
 // Spectrum ---------------------------------------------------------------------
+
+// Removes subdomain of url hostname
+function cleanUrl(hostname) {
+  return hostname.split('.').slice(-2).join('.');
+}
 
 // logs errors
 function logError(message, req, textstatus, errorthrown) {
@@ -74,9 +89,8 @@ function render(url, context, callback, isMultiple) {
 var spectrum = {
   init: function (location) {
     var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-    var domain = location.host.replace('www.', '');
+    var domain = cleanUrl(location.hostname);
     this.currentPublication = publications[domain];
-
 
     if (isNotClosed && this.currentPublication) {
       this.getAssociations(numOfArticlesToShow);
@@ -88,9 +102,9 @@ var spectrum = {
   getAssociations: function (numberArticles) {
     // TODO: Use numberArticles to return back specific number of articles
     var _this = this;
-    var urlToQuery = encodeURIComponent(location.href.split("?")[0]);
+    var urlToQuery = encodeURIComponent(location.href.split('?')[0]);
     $.ajax({
-      url: associationApiUrl + "?url=" + urlToQuery,
+      url: associationApiUrl + '?url=' + urlToQuery,
       type: 'GET',
     })
     .fail(function (req, textstatus, errorthrown) {
@@ -189,7 +203,7 @@ var spectrum = {
       bias: mediaBias[currPubData.bias],
       biasAbbr: currPubData.bias,
       target_url: currPubData.base_url,
-      publication: currPubData.name
+      publication: currPubData.name,
     }, function ($el) {
       this._addCurrArticleCB($el, articleData, numberArticles);
     }.bind(this));
@@ -219,11 +233,11 @@ var spectrum = {
           return;
         }
 
-        var more_text = 'More ' + mediaBias[article.publication_bias] + ' Articles »';
-        var publication_date = new Date(article.publication_date);
+        var moreText = 'More ' + mediaBias[article.publication_bias] + ' Articles »';
+        var publicationDate = new Date(article.publication_date);
 
         var imageUrl = article.image_url || article.publication_logo;
-        if (location.host == "www.nytimes.com") {
+        if (location.host === 'www.nytimes.com') {
           imageUrl = article.publication_logo;
         }
 
@@ -232,9 +246,9 @@ var spectrum = {
           source: article.publication_name,
           headLine: article.title,
           target_url: article.url,
-          more_text: more_text,
+          more_text: moreText,
           bias: article.publication_bias,
-          publication_date: monthNames[publication_date.getMonth()] + ' ' + publication_date.getDate(),
+          publication_date: monthNames[publicationDate.getMonth()] + ' ' + publicationDate.getDate(),
         });
 
         renderCB.push(singleArticleCB);
