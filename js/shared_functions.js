@@ -177,6 +177,13 @@ var spectrum = {
       this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
       $('body').append($html);
 
+      // Properly minimize container container if user hasn't maximized it before
+      if (getLocalStorage('hidden') === null) {
+        this._showContainer();
+      } else {
+        this._hideContainer('spectrum-minimize');
+      }
+
       // Add events here so only add once
       this._$container.on('click.spectrumReload', '.spectrum-more-link a', function () {
         this.getAssociations(3);
