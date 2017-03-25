@@ -114,10 +114,14 @@ var spectrum = {
       logError('Failed to get associations', req, textstatus, errorthrown);
     })
     .done(function (resp) {
-      if (_this._$container) {
-        _this._addContainerCb(undefined, resp, numberArticles);
-      } else {
-        _this.showArticles(resp, numberArticles);
+      // API will return false if url is not in database
+      // In that case, don't show panel
+      if (resp) {
+        if (_this._$container) {
+          _this._addContainerCb(undefined, resp, numberArticles);
+        } else {
+          _this.showArticles(resp, numberArticles);
+        }
       }
     });
   },
