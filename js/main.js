@@ -25,7 +25,7 @@
     chrome.runtime.onMessage.addListener(function (request){
       if (request.action === 'hideSpectrumPanel') {
         setLocalStorage(request.showType, request.typeButton);
-        if (request.showType === 'hidden' || request.showType === 'minimized') {
+        if (request.showType === 'hidden') {
           spectrumInstance._hideContainer(request.typeButton);
         } else {
           spectrumInstance._hideIcon();
@@ -36,7 +36,7 @@
     chrome.runtime.onMessage.addListener(function (request) {
       if (request.action === 'showSpectrumPanel') {
         setLocalStorage(request.showType, null);
-        if (request.showType === 'hidden' || request.showType === 'minimized') {
+        if (request.showType === 'hidden') {
           spectrumInstance._showContainer();
           spectrumInstance.getAssociations(3);
         } else {

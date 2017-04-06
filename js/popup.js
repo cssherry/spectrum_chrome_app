@@ -8,14 +8,14 @@ function sendMessage(requestObject, callback) {
 function addSpectrumEvents() {
   var currentPublication;
   var $popupBody = $('.spectrum-popup-body');
-  var $panelOptions = $popupBody.find('[data-show-type="hidden"]');
-  var $iconOptions = $popupBody.find('[data-show-type="hiddenIcon"]');
-  var $minimizedOptions = $popupBody.find('[data-show-type="minimized"]');
+  var $panelOptions = $popupBody.find('.spectrum-close');
+  var $minimizedOptions = $popupBody.find('.spectrum-minimize');
+  var $iconOptions = $popupBody.find('.spectrum-no-button');
 
   // Set initial visibility
   var setVisibilityRequest = {
     action: 'getLocalStorage',
-    localValues: ['hidden', 'hiddenIcon', 'minimized'],
+    localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
     currentPublication = result.currentArticle
@@ -23,13 +23,13 @@ function addSpectrumEvents() {
       $popupBody.removeClass('spectrum-disabled');
     }
 
-    if (result.hidden) {
+    if (result.hidden === 'spectrum-close') {
       $panelOptions.filter('.spectrum-hide-panel').hide();
     } else {
       $panelOptions.filter('.spectrum-show-option').hide();
     }
 
-    if (result.minimized) {
+    if (result.hidden === 'spectrum-minimize') {
       $minimizedOptions.filter('.spectrum-hide-panel').hide();
     } else {
       $minimizedOptions.filter('.spectrum-show-option').hide();
@@ -42,11 +42,13 @@ function addSpectrumEvents() {
     }
   });
 
-  function toggleVisibility(showType) {
+  function toggleVisibility(showType, hideType) {
     if (showType === 'hidden') {
-      $panelOptions.toggle();
-    } else if (showType === 'minimized') {
-      $minimizedOptions.toggle();
+      if (hideType === 'spectrum-minimize') {
+        $minimizedOptions.toggle();
+      } else {
+        $panelOptions.toggle();
+      }
     } else {
       $iconOptions.toggle();
     }
@@ -59,7 +61,7 @@ function addSpectrumEvents() {
       typeButton: dataset.hideType,
       showType: dataset.showType,
     };
-    toggleVisibility(dataset.showType);
+    toggleVisibility(dataset.showType, dataset.hideType);
     sendMessage(requestObject);
   });
 
@@ -69,7 +71,7 @@ function addSpectrumEvents() {
       action: 'showSpectrumPanel',
       showType: showType,
     };
-    toggleVisibility(showType);
+    toggleVisibility(showType, e.target.dataset.hideType);
     sendMessage(requestObject);
   });
 }
