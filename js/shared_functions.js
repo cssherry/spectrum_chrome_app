@@ -91,9 +91,11 @@ var spectrum = {
     this.mediaBias = getLocalStorage('mediaBias');
 
     var domain = cleanUrl(location.hostname);
+    var isHomepage = location.origin + '/' === location.href ||
+                     location.origin === location.href
     this.currentPublication = this.publications[domain];
 
-    if (this.currentPublication) {
+    if (this.currentPublication && !isHomepage) {
       this.getAssociations(numOfArticlesToShow);
     }
 
