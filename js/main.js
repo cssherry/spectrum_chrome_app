@@ -51,7 +51,6 @@
         request.localValues.forEach(function (lv) {
           results[lv] = getLocalStorage(lv);
         });
-        results.currentPublication = spectrumInstance.currentPublication;
         sendResponse(results);
       }
     });

@@ -90,12 +90,10 @@ var spectrum = {
     this.publications = getLocalStorage('publications', 'March 25, 2017');
     this.mediaBias = getLocalStorage('mediaBias');
 
-
-    var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
     var domain = cleanUrl(location.hostname);
     this.currentPublication = this.publications[domain];
 
-    if (isNotClosed && this.currentPublication) {
+    if (this.currentPublication) {
       this.getAssociations(numOfArticlesToShow);
     }
 
@@ -117,10 +115,18 @@ var spectrum = {
       // API will return false if url is not in database
       // In that case, don't show panel
       if (resp) {
-        if (_this._$container) {
-          _this._addContainerCb(undefined, resp, numberArticles);
-        } else {
-          _this.showArticles(resp, numberArticles);
+        var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
+
+        sendMessage({
+          action: 'spectrumEnabled',
+        });
+
+        if (isNotClosed) {
+          if (_this._$container) {
+            _this._addContainerCb(undefined, resp, numberArticles);
+          } else {
+            _this.showArticles(resp, numberArticles);
+          }
         }
       }
     });
