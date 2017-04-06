@@ -17,6 +17,11 @@ function addSpectrumEvents() {
     localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
+    currentPublication = result.currentArticle
+    if (currentPublication) {
+      $popupBody.removeClass('spectrum-disabled');
+    }
+
     if (result.hidden) {
       $panelOptions.filter('.spectrum-hide-panel').hide();
     } else {
@@ -30,19 +35,17 @@ function addSpectrumEvents() {
     }
   });
 
-  // Remove .spectrum-disabled only if there's article on page
-  chrome.runtime.onMessage.addListener(function (request) {
-    if (request.action === 'spectrumEnabled') {
-      $popupBody.removeClass('spectrum-disabled');
-    }
-  });
-
   function toggleVisibility(showType) {
     if (showType === 'hidden') {
       $panelOptions.toggle();
     } else {
       $iconOptions.toggle();
     }
+  }
+
+  // Don't add event handlers if there's no publications on page
+  if (!currentPublication) {
+    return;
   }
 
   $popupBody.on('click.hidePanel', '.spectrum-hide-panel', function (e) {

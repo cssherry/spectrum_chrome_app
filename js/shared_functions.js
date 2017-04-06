@@ -114,12 +114,9 @@ var spectrum = {
     .done(function (resp) {
       // API will return false if url is not in database
       // In that case, don't show panel
+      _this.currentArticle = resp;
       if (resp) {
         var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-
-        sendMessage({
-          action: 'spectrumEnabled',
-        });
 
         if (isNotClosed) {
           if (_this._$container) {
