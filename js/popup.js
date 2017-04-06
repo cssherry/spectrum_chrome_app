@@ -10,11 +10,12 @@ function addSpectrumEvents() {
   var $popupBody = $('.spectrum-popup-body');
   var $panelOptions = $popupBody.find('[data-show-type="hidden"]');
   var $iconOptions = $popupBody.find('[data-show-type="hiddenIcon"]');
+  var $minimizedOptions = $popupBody.find('[data-show-type="minimized"]');
 
   // Set initial visibility
   var setVisibilityRequest = {
     action: 'getLocalStorage',
-    localValues: ['hidden', 'hiddenIcon'],
+    localValues: ['hidden', 'hiddenIcon', 'minimized'],
   };
   sendMessage(setVisibilityRequest, function (result) {
     currentPublication = result.currentArticle
@@ -28,6 +29,12 @@ function addSpectrumEvents() {
       $panelOptions.filter('.spectrum-show-option').hide();
     }
 
+    if (result.minimized) {
+      $minimizedOptions.filter('.spectrum-hide-panel').hide();
+    } else {
+      $minimizedOptions.filter('.spectrum-show-option').hide();
+    }
+
     if (result.hiddenIcon) {
       $iconOptions.filter('.spectrum-hide-panel').hide();
     } else {
@@ -38,14 +45,11 @@ function addSpectrumEvents() {
   function toggleVisibility(showType) {
     if (showType === 'hidden') {
       $panelOptions.toggle();
+    } else if (showType === 'minimized') {
+      $minimizedOptions.toggle();
     } else {
       $iconOptions.toggle();
     }
-  }
-
-  // Don't add event handlers if there's no publications on page
-  if (!currentPublication) {
-    return;
   }
 
   $popupBody.on('click.hidePanel', '.spectrum-hide-panel', function (e) {
