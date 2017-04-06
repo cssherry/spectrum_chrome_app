@@ -63,15 +63,17 @@ body {
   color: #fff;
 }
 
-.spectrum-popup-body li a:hover{
-  color: #fff;
-}
-
 /* Don't have ugly highlight upon panel open */
 .spectrum-popup-body li a:focus {
   outline: none;
 }
 
-.spectrum-disabled .spectrum-available {
-  display: none;
+.spectrum-disabled .spectrum-available li {
+  cursor: default;
+  color: gray;
+}
+
+.spectrum-disabled .spectrum-available li:hover {
+  color: gray;
+  background-color: inherit;
 }
