@@ -188,10 +188,6 @@ var spectrum = {
       }
 
       // Add events here so only add once
-      this._$container.on('click.spectrumReload', '.spectrum-more-link a', function () {
-        this.getAssociations(3);
-      }.bind(this));
-
       this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
         var typeButton = e.target.dataset.hideType;
         setLocalStorage('hidden', typeButton);
@@ -250,7 +246,7 @@ var spectrum = {
           return;
         }
 
-        var moreText = 'More ' + this.mediaBias[article.publication_bias] + ' Articles »';
+        var moreText = this.mediaBias[article.publication_bias];
         var publicationDate = new Date(article.publication_date);
 
         var imageUrl = article.image_url || article.publication_logo;
