@@ -171,35 +171,30 @@
 }
 
 .spectrum-article-image-container div,
-.spectrum-more-link,
-.spectrum-more-link a {
+.spectrum-more-link {
   font-size: 14px;
   font-family: OpenSans, Arial, sans-serif !important;
 }
 
 
-.spectrum-more-link[data-bias=L] a {
+.spectrum-more-link[data-bias=L] {
   color: #1616E1 !important;
 }
 
-.spectrum-more-link[data-bias=LC] a {
+.spectrum-more-link[data-bias=LC] {
   color: #9494EA !important;
 }
 
-.spectrum-more-link[data-bias=C] a {
+.spectrum-more-link[data-bias=C] {
   color: #F6A623 !important;
 }
 
-.spectrum-more-link[data-bias=RC] a {
+.spectrum-more-link[data-bias=RC] {
   color: #E77676 !important;
 }
 
-.spectrum-more-link[data-bias=R] a {
+.spectrum-more-link[data-bias=R] {
   color: #DC1616 !important;
-}
-
-.spectrum-more-link a {
-  cursor: pointer;
 }
 
 .spectrum-article-body {
