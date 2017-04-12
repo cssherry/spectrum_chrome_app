@@ -257,7 +257,7 @@ var spectrum = {
 
         var imageUrl = article.image_url || article.publication_logo;
         if (location.host === 'www.nytimes.com') {
-          imageUrl = article.publication_logo;
+          imageUrl = article.publication_logo.replace(/^http:/, 'https:');
         }
 
         renderConfig.push({
