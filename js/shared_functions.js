@@ -243,10 +243,8 @@ var spectrum = {
 
       var $leftButton = $('<a role="button" class="spectrum-carousel-control spectrum-carousel-prev">');
       $leftButton.append('<span class="spectrum-icon-prev" aria-hidden="true"></span>');
-      $leftButton.append('<span class="sr-only">Previous</span>');
       var $rightButton = $('<a role="button" class="spectrum-carousel-control spectrum-carousel-next">');
       $rightButton.append('<span class="spectrum-icon-next" aria-hidden="true"></span>');
-      $rightButton.append('<span class="sr-only">Next</span>');
       this._$articlesContainer.append($leftButton);
       $leftButton.hide();
       this._$articlesContainer.append($rightButton);
