@@ -88,10 +88,18 @@
 .spectrum-article-container {
   padding: 5px 10px;
   width: 28%;
+  min-width: 380px;
+  max-width: 480px;
   font-family: OpenSans, Arial, sans-serif !important;
 }
+
+.spectrum-article-container:nth-child(n + 2) {
+  border-left: 1px solid #999999;
+}
+
 .spectrum-current-article-container {
   width: 10%;
+  min-width: 150px;
   padding: 0;
 }
 
