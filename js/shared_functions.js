@@ -2,8 +2,6 @@ var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associatio
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
-var numOfArticlesToShow = 3;
-
 // Get local storage info
 // name: identifier/variable name for data (will be transformed and saved as 'spectrum-NAME')
 // _earliestAcceptableDate: OPTIONAL string that can be parsed into date (eg 'March 25, 2017')
@@ -96,14 +94,13 @@ var spectrum = {
     this.currentPublication = this.publications[domain];
 
     if (this.currentPublication && !isHomepage) {
-      this.getAssociations(numOfArticlesToShow);
+      this.getAssociations();
     }
 
     return this;
   },
 
-  getAssociations: function (numberArticles) {
-    // TODO: Use numberArticles to return back specific number of articles
+  getAssociations: function () {
     var _this = this;
     var urlToQuery = encodeURIComponent(location.href.split('?')[0]);
     $.ajax({
@@ -122,9 +119,9 @@ var spectrum = {
 
         if (isNotClosed) {
           if (_this._$container) {
-            _this._addContainerCb(undefined, resp, numberArticles);
+            _this._addContainerCb(undefined, resp);
           } else {
-            _this.showArticles(resp, numberArticles);
+            _this.showArticles(resp);
           }
         }
       }
@@ -167,13 +164,13 @@ var spectrum = {
     this._$container.removeClass(removeClass);
   },
 
-  showArticles: function (articleData, numberArticles) {
+  showArticles: function (articleData) {
     render('../html/main.html', undefined, function ($el) {
-      this._addContainerCb($el, articleData, numberArticles);
+      this._addContainerCb($el, articleData);
     }.bind(this));
   },
 
-  _addContainerCb: function ($html, articleData, numberArticles) {
+  _addContainerCb: function ($html, articleData) {
     var currPubData = this.currentPublication.fields;
 
     if ($html) {
@@ -220,12 +217,13 @@ var spectrum = {
       target_url: currPubData.base_url,
       publication: currPubData.name,
     }, function ($el) {
-      this._addCurrArticleCB($el, articleData, numberArticles);
+      this._addCurrArticleCB($el, articleData);
     }.bind(this));
   },
 
-  _addCurrArticleCB: function ($publicationHtml, articleData, numberArticles) {
+  _addCurrArticleCB: function ($publicationHtml, articleData) {
     var renderUrl, renderConfig, isMultiple;
+    var _this = this;
     var renderCB = function ($el) {
       this._$articlesContainer.append($el);
     }.bind(this);
@@ -235,6 +233,7 @@ var spectrum = {
     if (articleData.length) {
       var singleArticleCB = function ($el) {
         this._$articlesContainer.append($el);
+        $(window).trigger('resize.show-or-hide');
       }.bind(this);
 
       isMultiple = true;
@@ -242,12 +241,17 @@ var spectrum = {
       renderCB = [];
       renderUrl = '../html/article.html';
 
-      articleData.forEach(function (article) {
-        // TODO: change number of articles depending on screen size
-        if (renderConfig.length >= numberArticles) {
-          return;
-        }
+      var $leftButton = $('<a role="button" class="spectrum-carousel-control spectrum-carousel-prev">');
+      $leftButton.append('<span class="spectrum-icon-prev" aria-hidden="true"></span>');
+      $leftButton.append('<span class="sr-only">Previous</span>');
+      var $rightButton = $('<a role="button" class="spectrum-carousel-control spectrum-carousel-next">');
+      $rightButton.append('<span class="spectrum-icon-next" aria-hidden="true"></span>');
+      $rightButton.append('<span class="sr-only">Next</span>');
+      this._$articlesContainer.append($leftButton);
+      $leftButton.hide();
+      this._$articlesContainer.append($rightButton);
 
+      articleData.forEach(function (article) {
         var moreText = this.mediaBias[article.publication_bias];
         var publicationDate = new Date(article.publication_date);
 
@@ -268,6 +272,137 @@ var spectrum = {
 
         renderCB.push(singleArticleCB);
       }.bind(this));
+
+      // When window resizes, hide the "next" arrow if there aren't any articles
+      // that are visible AND not in viewport
+      var $articles;
+      $(window).off('resize.show-or-hide').on('resize.show-or-hide', function () {
+        getArticles();
+
+        // wait to run so that div has time to update (hide excess articles, etc)
+        setTimeout(function () {
+          if ($articles) {
+            var numberItems,
+                numberArticlesToShow = 0,
+                numberArticlesShown = 0;
+            var moreArticles = $articles.filter(function () {
+              var elementInViewport = isElementInViewport(this);
+              var elementIsVisible = $(this).is(':visible');
+              if (numberItems === undefined && elementIsVisible && elementInViewport) {
+                numberItems = getNumberItems(this);
+              }
+
+              if (!elementInViewport && elementIsVisible) {
+                numberArticlesToShow++;
+              }
+
+              if (elementInViewport && elementIsVisible) {
+                numberArticlesShown++;
+              }
+
+              return !elementIsVisible;
+            });
+
+            if (numberArticlesToShow) {
+              $rightButton.show();
+            } else {
+              $rightButton.hide();
+            }
+
+            if (numberArticlesShown < numberItems) {
+              var numberToShow = numberItems - numberArticlesShown;
+              var numberHiddenArticles = moreArticles.length;
+              for (var j = numberHiddenArticles; j > numberHiddenArticles - numberToShow; j--) {
+                $(moreArticles[j - 1]).show();
+              }
+
+              if (numberHiddenArticles === numberToShow) {
+                $leftButton.hide();
+              }
+            }
+          }
+        }, 100);
+      });
+
+      // Add event handler to show previous or next articles
+      this._$articlesContainer.off('click.show-or-hide').on('click.show-or-hide', 'a.spectrum-carousel-control', function (e) {
+        var $clickedControl = $(e.currentTarget),
+            goPrevious = $clickedControl.hasClass('spectrum-carousel-prev'),
+            numberShown,
+            numberToShow;
+
+        getArticles();
+
+        var articlesToShowOrHide =  $articles.filter(function () {
+          var isInViewPort = isElementInViewport(this);
+          var isHidden = !$(this).is(':visible');
+          if (isInViewPort && !isHidden && !numberShown) {
+            numberShown = getNumberItems(this);
+          }
+
+          if (goPrevious) {
+            if (isHidden) {
+              if (numberToShow === undefined) {
+                numberToShow = 1;
+              } else {
+                numberToShow++;
+              }
+            }
+            return isHidden;
+          } else {
+            if (isInViewPort) {
+              numberToShow = 0;
+            } else if ($.isNumeric(numberToShow)) {
+              numberToShow++;
+            }
+            return isInViewPort;
+          }
+        });
+
+        if (numberToShow <= numberShown) {
+          $clickedControl.hide();
+        }
+
+        if (goPrevious) {
+          var arrayLength = articlesToShowOrHide.length;
+          for (var i = arrayLength; i > arrayLength - numberShown; i--) {
+            $(articlesToShowOrHide[i - 1]).show();
+          }
+          $rightButton.show();
+        } else {
+          articlesToShowOrHide.hide();
+          $leftButton.show();
+        }
+      });
+
+      function getArticles() {
+        if (!$articles) {
+          var currentArticles = _this._$articlesContainer.find('.spectrum-article-container');
+          if (articleData.length === currentArticles.length) {
+            $articles = currentArticles;
+          }
+        }
+      }
+
+      function isElementInViewport(el) {
+        // special bonus for those using jQuery
+        if (typeof jQuery === 'function' && el instanceof jQuery) {
+          el = el[0];
+        }
+
+        var rect = el.getBoundingClientRect();
+
+        return (
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.top <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+          rect.left <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+        );
+      }
+
+      function getNumberItems(item) {
+        return Math.floor((item.parentElement.clientWidth - 170) / item.clientWidth);
+      }
     } else {
       renderUrl = '../html/unknown.html';
       renderConfig = {

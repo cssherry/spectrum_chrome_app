@@ -38,7 +38,7 @@
         setLocalStorage(request.showType, null);
         if (request.showType === 'hidden') {
           spectrumInstance._showContainer();
-          spectrumInstance.getAssociations(3);
+          spectrumInstance.getAssociations();
         } else {
           spectrumInstance._showIcon();
         }
