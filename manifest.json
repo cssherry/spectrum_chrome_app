@@ -3,11 +3,23 @@
 
     "name": "See the spectrum",
     "description": "Pop the social news bubble",
-    "version": "0.1",
+    "version": "0.2"  ,
+
+    "options_ui": {
+      "page": "html/options.html",
+      "chrome_style": true
+    },
+
+    "icons": {
+      "56": "images/icon.png"
+    },
 
     "browser_action": {
         "default_icon": "images/icon.png",
-        "default_popup": "html/popup.html"
+        "default_popup": "html/popup.html",
+        "default_title": "See the spectrum"
+    },
+
     "background": {
       "scripts": [
         "js/background.js"
@@ -35,6 +47,7 @@
     "permissions": [
         "activeTab",
         "webNavigation",
+        "storage",
         "*://*/*"
     ]
 }

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spectrum Options</title>
+  <link href="../css/options.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <label>
+    Name:
+    <input type="text" name="username" id='username'>
+  </label>
+
+  <label>
+    Panel State:
+    <select id="hidden" name="hidden">
+     <option value="">Open</option>
+     <option value="spectrum-close">Close</option>
+     <option value="spectrum-minimize">Minimize</option>
+    </select>
+  </label>
+
+  <label>
+    Hide Panel Icon
+    <input type="checkbox" id="hiddenIcon">
+  </label>
+
+  <div id="status"></div>
+  <button id="save" class='pull-right'>Save</button>
+
+  <script src="../js/options.js"></script>
+</body>
+</html>
