@@ -10,15 +10,14 @@
 
   background: transparent;
 
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
- .spectrum-container {
-   background: white;
-   height: 100%;
-   width: 100%;
- }
-
+.spectrum-container {
+ background: white;
+ height: 100%;
+ width: 100%;
+}
 
 #spectrum-articles-container-top-border {
   box-sizing: border-box;
@@ -29,7 +28,6 @@
 
 #spectrum-articles-container {
   position: relative;
-
   box-sizing: border-box;
   width: 100%;
 }
@@ -91,6 +89,7 @@
   min-width: 380px;
   max-width: 480px;
   font-family: OpenSans, Arial, sans-serif !important;
+  float: left;
 }
 
 .spectrum-article-container:nth-of-type(n + 2) {
@@ -104,6 +103,7 @@
 
 .spectrum-article-headline a {
   text-transform: none;
+  text-decoration: none;
   color: #474747;
 }
 
@@ -111,6 +111,7 @@
   color: white;
   font-family: OpenSans, Arial, sans-serif !important;
   font-size: 14px !important;
+  float: left;
 }
 
 .spectrum-current-article-container[data-bias=L] {
@@ -164,6 +165,10 @@
   padding-top: 10px;
 }
 
+.spectrum-article-image-container div.spectrum-publication-title {
+  padding-top: 0px;
+}
+
 .spectrum-article-image-container div,
 .spectrum-more-link,
 .spectrum-article-source {
@@ -212,7 +217,7 @@
 
 .spectrum-article-headline {
   margin-bottom: 10px;
-  line-height: 1.5em;
+  line-height: 1.2em;
   height: 3em; /* todo - get ellipses */
   overflow: hidden;
 
@@ -226,6 +231,7 @@ a.spectrum-article-headline {
 #spectrum-container a:hover {
   opacity: .8 !important;
   color: inherit;
+  text-decoration: none;
 }
 
 .spectrum-article-source .pull-right {

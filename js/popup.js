@@ -18,7 +18,14 @@ function addSpectrumEvents() {
     localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
-    console.log(arguments);
+    if (!result) {
+      result = {
+        currentArticle: undefined,
+        hidden: undefined,
+        hiddenIcon: undefined,
+      };
+    }
+
     currentPublication = result.currentArticle;
     if (currentPublication) {
       $popupBody.removeClass('spectrum-disabled');
