@@ -1,62 +1,72 @@
-  var publications = getLocalStorage('publications', 'March 25, 2017');
-  var mediaBias = getLocalStorage('mediaBias');
-  var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
+var publications;
+var mediaBias;
+var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
 
 
-  // Store publications in hash with base_url
-  // TODO: Consider if we should be only taking last 2 fields of base_url
-  //      (ie ap.org instead of hosted.ap.org)
-  function processPublicationUrls(pubs) {
-    var result = {};
-    pubs.forEach(function (p) {
-      if (!p.fields.skip_scraping) {
-        result[cleanUrl(p.fields.base_url)] = p;
+// Store publications in hash with base_url
+// TODO: Consider if we should be only taking last 2 fields of base_url
+//      (ie ap.org instead of hosted.ap.org)
+function processPublicationUrls(pubs) {
+  var result = {};
+  pubs.forEach(function (p) {
+    if (!p.fields.skip_scraping) {
+      result[cleanUrl(p.fields.base_url)] = p;
+    }
+  });
+  return result;
+}
+
+// Main function ---------------------------------------------------------------------
+// Only get publications/media bias if not in local storage and less than 7-days old
+function getAssociations() {
+  var currentLocation = window.location;
+  var spectrumInstance = spectrum.init(currentLocation, publications, mediaBias);
+
+  chrome.runtime.onMessage.addListener(function (request){
+    if (request.action === 'hideSpectrumPanel') {
+      const changeParam = {};
+      changeParam[request.showType] = request.typeButton;
+      setLocalStorage(changeParam);
+      if (request.showType === 'hidden') {
+        spectrumInstance._hideContainer(request.typeButton);
+      } else {
+        spectrumInstance._hideIcon();
       }
-    });
-    return result;
-  }
+      return true;
+    }
+  });
 
-  // Main function ---------------------------------------------------------------------
-  // Only get publications/media bias if not in local storage and less than 7-days old
-  function getAssociations() {
-    var currentLocation = window.location;
-    var spectrumInstance = spectrum.init(currentLocation);
-
-    chrome.runtime.onMessage.addListener(function (request){
-      if (request.action === 'hideSpectrumPanel') {
-        setLocalStorage(request.showType, request.typeButton);
-        if (request.showType === 'hidden') {
-          spectrumInstance._hideContainer(request.typeButton);
-        } else {
-          spectrumInstance._hideIcon();
-        }
+  chrome.runtime.onMessage.addListener(function (request) {
+    if (request.action === 'showSpectrumPanel') {
+      const changeParam = {};
+      changeParam[request.showType] = null;
+      setLocalStorage(changeParam);
+      if (request.showType === 'hidden') {
+        spectrumInstance._showContainer();
+        spectrumInstance.getAssociations();
+      } else {
+        spectrumInstance._showIcon();
       }
-    });
+      return true;
+    }
+  });
 
-    chrome.runtime.onMessage.addListener(function (request) {
-      if (request.action === 'showSpectrumPanel') {
-        setLocalStorage(request.showType, null);
-        if (request.showType === 'hidden') {
-          spectrumInstance._showContainer();
-          spectrumInstance.getAssociations();
-        } else {
-          spectrumInstance._showIcon();
-        }
-      }
-    });
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.action === 'getLocalStorage') {
+      getLocalStorage(request.localValues, function (items) {
+        items.currentArticle = !!spectrumInstance.currentArticle;
+        sendResponse(items);
+        return true;
+      });
+      return true;
+    }
+  });
+}
 
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-      if (request.action === 'getLocalStorage') {
-        var results = {};
-        request.localValues.forEach(function (lv) {
-          results[lv] = getLocalStorage(lv);
-        });
-        results.currentArticle = spectrumInstance.currentArticle;
-        sendResponse(results);
-      }
-    });
-  }
-
+// save publications list on localstorage because otherwise, exceeds QUOTA_BYTES_PER_ITEM
+publications = processValue(JSON.parse(localStorage.getItem('publications')));
+getLocalStorage(['mediaBias'], function (items) {
+  mediaBias = items.mediaBias;
   if (publications && mediaBias) {
     getAssociations();
   } else {
@@ -70,8 +80,13 @@
     .done(function (resp) {
       publications = processPublicationUrls(resp.publications);
       mediaBias = resp.media_bias;
-      setLocalStorage('publications', publications);
-      setLocalStorage('mediaBias', mediaBias);
-      getAssociations();
+      localStorage.setItem('publications', JSON.stringify({
+        dateSaved: new Date().toString(),
+        data: publications,
+      }));
+      setLocalStorage({
+        mediaBias: mediaBias,
+      }, getAssociations, true /* checkDate */);
     });
   }
+})

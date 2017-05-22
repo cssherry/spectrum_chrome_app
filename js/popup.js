@@ -18,7 +18,8 @@ function addSpectrumEvents() {
     localValues: ['hidden', 'hiddenIcon'],
   };
   sendMessage(setVisibilityRequest, function (result) {
-    currentPublication = result.currentArticle
+    console.log(arguments);
+    currentPublication = result.currentArticle;
     if (currentPublication) {
       $popupBody.removeClass('spectrum-disabled');
     }
@@ -55,6 +56,10 @@ function addSpectrumEvents() {
   }
 
   $popupBody.on('click.hidePanel', '.spectrum-hide-panel', function (e) {
+    if ($(e.target).closest('.spectrum-disabled').length) {
+      return;
+    }
+
     var dataset = e.target.dataset;
     var requestObject = {
       action: 'hideSpectrumPanel',
@@ -66,6 +71,10 @@ function addSpectrumEvents() {
   });
 
   $popupBody.on('click.showPanel', '.spectrum-show-option', function (e) {
+    if ($(e.target).closest('.spectrum-disabled').length) {
+      return;
+    }
+
     var showType = e.target.dataset.showType;
     var requestObject = {
       action: 'showSpectrumPanel',
