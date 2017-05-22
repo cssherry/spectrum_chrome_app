@@ -57,9 +57,9 @@ body {
 }
 
 /* Change the link color on hover */
-
-.spectrum-popup-body li:hover{
-  background-color: #4095FD;
+.spectrum-popup-body li:hover,
+.spectrum-popup-body li:hover > a {
+  background-color: #2667b5;
   color: #fff;
 }
 
