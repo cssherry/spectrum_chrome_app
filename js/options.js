@@ -48,8 +48,8 @@ function restoreOptions() {
     username: '',
     uniqueId: '',
   }, function (settings) {
-    document.getElementById('hidden').value = settings.hidden;
-    document.getElementById('hiddenIcon').checked = settings.hiddenIcon;
+    document.getElementById('hidden').value = settings.hidden || '';
+    document.getElementById('hiddenIcon').checked = !!settings.hiddenIcon;
     document.getElementById('username').value = settings.username;
     uniqueId = settings.uniqueId;
   });
