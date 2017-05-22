@@ -22,7 +22,7 @@
 
     "background": {
       "scripts": [
-        "js/background.js"
+        "js/background.min.js"
       ]
     },
 
@@ -33,7 +33,7 @@
     "content_scripts": [
         {
             "matches": ["http://*/*", "https://*/*"],
-            "css": ["css/main.css"],
+            "css": ["css/main.min.css"],
             "js": [
                 "js/lib/jquery-3.1.1.min.js",
                 "js/lib/handlebars-v4.0.5.min.js",
