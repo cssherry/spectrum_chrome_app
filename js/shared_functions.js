@@ -5,39 +5,72 @@ var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
 // Get local storage info
 // name: identifier/variable name for data (will be transformed and saved as 'spectrum-NAME')
 // _earliestAcceptableDate: OPTIONAL string that can be parsed into date (eg 'March 25, 2017')
-function getLocalStorage(name, _earliestAcceptableDate) {
-  var localData = localStorage.getItem('spectrum-' + name);
-  if (!localData) {
+function processValue(keyData, _earliestAcceptableDate) {
+  if (!keyData) {
     return undefined;
   }
 
-  localData = JSON.parse(localData);
+  // Process non-checkDate values
+  if (!keyData || !keyData.dateSaved) {
+    return keyData;
+  }
 
   // if older than 7 days, disregard
   var sevenDays = 1000 * 60 * 24 * 7;
 
   // If there's a _earliestAcceptableDate, figure out if it's older than dateSaved (good)
   var dateSavedAcceptable = true;
-  var dateSaved = new Date(localData.dateSaved);
+  var dateSaved = new Date(keyData.dateSaved);
   if (_earliestAcceptableDate) {
     dateSavedAcceptable = new Date(_earliestAcceptableDate) < dateSaved;
   }
 
   if (dateSavedAcceptable && new Date() - dateSaved < sevenDays) {
-    return localData.data;
+    return keyData.data;
   }
 
   return null;
 }
 
-// Set local storage info
-function setLocalStorage(name, data) {
-  var result = {
-    dateSaved: new Date().toString(),
-    data: data,
-  };
+function getLocalStorage(names, cb, _earliestAcceptableDate) {
+  // MAIN FUNCTION
+  chrome.storage.sync.get(names, function (items) {
+    for (var key in items) {
+      if (items.hasOwnProperty(key)) {
+        items[key] = processValue(items[key], _earliestAcceptableDate);
+      }
+    }
 
-  localStorage.setItem('spectrum-' + name, JSON.stringify(result));
+    if (cb) {
+      return cb(items);
+    } else {
+      return true;
+    }
+  });
+}
+
+// Set local storage info
+function setLocalStorage(data, cb, checkDate) {
+  var result = {};
+  for (var key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (checkDate) {
+        result[key] = {
+          dateSaved: new Date().toString(),
+          data: data[key],
+        };
+      } else {
+        result[key] = data[key];
+      }
+    }
+  }
+
+  chrome.storage.sync.set(result, function () {
+    if (cb) {
+      cb()
+    }
+    return true;
+  });
 }
 
 // Spectrum ---------------------------------------------------------------------
@@ -83,19 +116,36 @@ function render(url, context, callback, isMultiple) {
 }
 
 var spectrum = {
-  init: function (location) {
+  init: function (location, publications, mediaBias) {
     // Add mediaBias and publications
-    this.publications = getLocalStorage('publications', 'March 25, 2017');
-    this.mediaBias = getLocalStorage('mediaBias');
+    var _this = this;
+    _this.publications = publications;
+    _this.mediaBias = mediaBias;
 
-    var domain = cleanUrl(location.hostname);
-    var isHomepage = location.origin + '/' === location.href ||
-                     location.origin === location.href
-    this.currentPublication = this.publications[domain];
+    getLocalStorage(['hidden'], function (items) {
+      _this.isNotClosed = items.hidden !== 'spectrum-close';
 
-    if (this.currentPublication && !isHomepage) {
-      this.getAssociations();
-    }
+      if (_this.isNotClosed) {
+        chrome.runtime.sendMessage({
+          action: 'setIcon',
+          url: '../images/icon.png',
+        });
+      } else {
+        chrome.runtime.sendMessage({
+          action: 'setIcon',
+          url: '../images/icon-inactive.png',
+        });
+      }
+
+      var domain = cleanUrl(location.hostname);
+      var isHomepage = location.origin + '/' === location.href ||
+                       location.origin === location.href;
+      _this.currentPublication = _this.publications[domain];
+
+      if (_this.currentPublication && !isHomepage) {
+        _this.getAssociations();
+      }
+    });
 
     return this;
   },
@@ -103,6 +153,7 @@ var spectrum = {
   getAssociations: function () {
     var _this = this;
     var urlToQuery = encodeURIComponent(location.href.split('?')[0]);
+
     $.ajax({
       url: associationApiUrl + '?url=' + urlToQuery,
       type: 'GET',
@@ -115,9 +166,7 @@ var spectrum = {
       // In that case, don't show panel
       _this.currentArticle = resp;
       if (resp) {
-        var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-
-        if (isNotClosed) {
+        if (_this.isNotClosed) {
           if (_this._$container) {
             _this._addContainerCb(undefined, resp);
           } else {
@@ -137,6 +186,12 @@ var spectrum = {
   },
 
   _showContainer: function () {
+    chrome.runtime.sendMessage({
+      action: 'setIcon',
+      url: '../images/icon.png',
+    });
+    this.isNotClosed = true;
+
     if (this._$articleBorder) {
       this._$articleBorder.addClass('spectrum-hide-panel');
       this._$articleBorder.removeClass('spectrum-expand-icon');
@@ -152,6 +207,15 @@ var spectrum = {
     var removeClass = isMinimize ? 'spectrum-close' : 'spectrum-minimize';
     var currentBias = this.currentPublication.fields.bias;
     removeClass += ' spectrum-not-minimize';
+
+    if (hiddenType === 'spectrum-close') {
+      chrome.runtime.sendMessage({
+        action: 'setIcon',
+        url: '../images/icon-inactive.png',
+      });
+
+      this.isNotClosed = false;
+    }
 
     if (isMinimize && !$currentPublicationIcon.attr('src')) {
       currentPublicationLink = chrome.extension.getURL('../images/icon-' + currentBias + '.png');
@@ -172,69 +236,75 @@ var spectrum = {
 
   _addContainerCb: function ($html, articleData) {
     var currPubData = this.currentPublication.fields;
+    var _this = this;
 
-    if ($html) {
-      this._$container = $html;
-      this._$articlesContainer = $html.find('#spectrum-articles-container');
-      this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
-      $('body').append($html);
+    getLocalStorage(['hidden', 'hiddenIcon'], function (items) {
+      var hidden = items.hidden;
+      var hiddenIcon = items.hiddenIcon;
+      if ($html) {
+        _this._$container = $html;
+        _this._$articlesContainer = $html.find('#spectrum-articles-container');
+        _this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
+        $('body').append($html);
 
-      // Properly minimize container container if user hasn't maximized it before
-      if (getLocalStorage('hidden') === null) {
-        this._showContainer();
+        // Properly minimize container container if user hasn't maximized it before
+        if (hidden === null) {
+          _this._showContainer();
+        } else {
+          _this._hideContainer('spectrum-minimize');
+        }
+
+        // Add events here so only add once
+        _this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
+          var typeButton = e.target.dataset.hideType;
+          setLocalStorage({ hidden: typeButton });
+          _this._hideContainer(typeButton);
+        });
+
+        _this._$container.on('click.spectrumExpand', '.spectrum-expand-icon', function () {
+          setLocalStorage({ hidden: null });
+          _this._showContainer();
+        });
       } else {
-        this._hideContainer('spectrum-minimize');
+        _this._$articlesContainer.empty();
       }
 
-      // Add events here so only add once
-      this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
-        var typeButton = e.target.dataset.hideType;
-        setLocalStorage('hidden', typeButton);
-        this._hideContainer(typeButton);
-      }.bind(this));
+      if (hidden) {
+        _this._hideContainer(hidden);
+      } else {
+        _this._showContainer();
+      }
 
-      this._$container.on('click.spectrumExpand', '.spectrum-expand-icon', function () {
-        setLocalStorage('hidden', null);
-        this._showContainer();
-      }.bind(this));
-    } else {
-      this._$articlesContainer.empty();
-    }
+      if (hiddenIcon) {
+        _this._hideIcon();
+      }
 
-    var hiddenType = getLocalStorage('hidden');
-    if (hiddenType) {
-      this._hideContainer(hiddenType);
-    }
-
-    if (getLocalStorage('hiddenIcon')) {
-      this._hideIcon();
-    }
-
-    render('../html/publication_detail.html', {
-      imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
-      bias: this.mediaBias[currPubData.bias],
-      biasAbbr: currPubData.bias,
-      target_url: currPubData.base_url,
-      publication: currPubData.name,
-    }, function ($el) {
-      this._addCurrArticleCB($el, articleData);
-    }.bind(this));
+      render('../html/publication_detail.html', {
+        imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
+        bias: _this.mediaBias[currPubData.bias],
+        biasAbbr: currPubData.bias,
+        target_url: currPubData.base_url,
+        publication: currPubData.name,
+      }, function ($el) {
+        _this._addCurrArticleCB($el, articleData);
+      });
+    });
   },
 
   _addCurrArticleCB: function ($publicationHtml, articleData) {
     var renderUrl, renderConfig, isMultiple;
     var _this = this;
     var renderCB = function ($el) {
-      this._$articlesContainer.append($el);
-    }.bind(this);
+      _this._$articlesContainer.append($el);
+    };
 
-    this._$articlesContainer.append($publicationHtml);
+    _this._$articlesContainer.append($publicationHtml);
 
     if (articleData.length) {
       var singleArticleCB = function ($el) {
-        this._$articlesContainer.append($el);
+        _this._$articlesContainer.append($el);
         $(window).trigger('resize.show-or-hide');
-      }.bind(this);
+      };
 
       isMultiple = true;
       renderConfig = [];
@@ -245,12 +315,12 @@ var spectrum = {
       $leftButton.append('<span class="spectrum-icon-prev" aria-hidden="true"></span>');
       var $rightButton = $('<a role="button" class="spectrum-carousel-control spectrum-carousel-next">');
       $rightButton.append('<span class="spectrum-icon-next" aria-hidden="true"></span>');
-      this._$articlesContainer.append($leftButton);
+      _this._$articlesContainer.append($leftButton);
       $leftButton.hide();
-      this._$articlesContainer.append($rightButton);
+      _this._$articlesContainer.append($rightButton);
 
       articleData.forEach(function (article) {
-        var moreText = this.mediaBias[article.publication_bias];
+        var moreText = _this.mediaBias[article.publication_bias];
         var publicationDate = new Date(article.publication_date);
 
         var imageUrl = article.image_url || article.publication_logo;
@@ -269,7 +339,7 @@ var spectrum = {
         });
 
         renderCB.push(singleArticleCB);
-      }.bind(this));
+      });
 
       // When window resizes, hide the "next" arrow if there aren't any articles
       // that are visible AND not in viewport
@@ -325,7 +395,7 @@ var spectrum = {
       // Add event handler to show previous or next articles
       this._$articlesContainer.off('click.show-or-hide').on('click.show-or-hide', 'a.spectrum-carousel-control', function (e) {
         var $clickedControl = $(e.currentTarget),
-            goPrevious = $clickedControl.hasClass('spectrum-carousel-prev'),
+            goPreviouse = $clickedControl.hasClass('spectrum-carousel-prev'),
             numberShown,
             numberToShow;
 
@@ -338,7 +408,7 @@ var spectrum = {
             numberShown = getNumberItems(this);
           }
 
-          if (goPrevious) {
+          if (goPreviouse) {
             if (isHidden) {
               if (numberToShow === undefined) {
                 numberToShow = 1;
@@ -347,21 +417,20 @@ var spectrum = {
               }
             }
             return isHidden;
-          } else {
+          }
             if (isInViewPort) {
               numberToShow = 0;
             } else if ($.isNumeric(numberToShow)) {
               numberToShow++;
             }
             return isInViewPort;
-          }
         });
 
         if (numberToShow <= numberShown) {
           $clickedControl.hide();
         }
 
-        if (goPrevious) {
+        if (goPreviouse) {
           var arrayLength = articlesToShowOrHide.length;
           for (var i = arrayLength; i > arrayLength - numberShown; i--) {
             $(articlesToShowOrHide[i - 1]).show();
