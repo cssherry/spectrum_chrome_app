@@ -14,9 +14,9 @@
 }
 
 .spectrum-container {
- background: white;
- height: 100%;
- width: 100%;
+  background: white;
+  height: 100%;
+  width: 100%;
 }
 
 #spectrum-articles-container-top-border {
@@ -334,6 +334,7 @@ a.spectrum-carousel-next {
   color: #333;
   padding: 2px;
   width: 15px;
+  height: 155px;
 }
 
 a.spectrum-carousel-prev:hover,
