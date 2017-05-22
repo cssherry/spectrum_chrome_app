@@ -85,11 +85,11 @@
 
 .spectrum-article-container {
   padding: 5px 10px;
-  width: 28%;
-  min-width: 380px;
-  max-width: 480px;
   font-family: OpenSans, Arial, sans-serif !important;
   float: left;
+  width: 22%;
+  min-width: 200px;
+  max-width: 500px;
 }
 
 .spectrum-article-container:nth-of-type(n + 2) {
@@ -333,6 +333,7 @@ a.spectrum-carousel-next {
   height: 100%;
   color: #333;
   padding: 2px;
+  width: 15px;
 }
 
 a.spectrum-carousel-prev:hover,
