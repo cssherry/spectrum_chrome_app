@@ -87,6 +87,19 @@ var spectrum = {
     // Add mediaBias and publications
     this.publications = getLocalStorage('publications', 'March 25, 2017');
     this.mediaBias = getLocalStorage('mediaBias');
+    this.isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
+
+    if (this.isNotClosed) {
+      chrome.runtime.sendMessage({
+        action: 'setIcon',
+        url: '../images/icon-inactive.png',
+      });
+    } else {
+      chrome.runtime.sendMessage({
+        action: 'setIcon',
+        url: '../images/icon.png',
+      });
+    }
 
     var domain = cleanUrl(location.hostname);
     var isHomepage = location.origin + '/' === location.href ||
@@ -103,6 +116,7 @@ var spectrum = {
   getAssociations: function () {
     var _this = this;
     var urlToQuery = encodeURIComponent(location.href.split('?')[0]);
+
     $.ajax({
       url: associationApiUrl + '?url=' + urlToQuery,
       type: 'GET',
@@ -115,9 +129,7 @@ var spectrum = {
       // In that case, don't show panel
       _this.currentArticle = resp;
       if (resp) {
-        var isNotClosed = getLocalStorage('hidden') !== 'spectrum-close';
-
-        if (isNotClosed) {
+        if (_this.isNotClosed) {
           if (_this._$container) {
             _this._addContainerCb(undefined, resp);
           } else {
@@ -137,6 +149,11 @@ var spectrum = {
   },
 
   _showContainer: function () {
+    chrome.runtime.sendMessage({
+      action: 'setIcon',
+      url: '../images/icon.png',
+    });
+
     if (this._$articleBorder) {
       this._$articleBorder.addClass('spectrum-hide-panel');
       this._$articleBorder.removeClass('spectrum-expand-icon');
@@ -152,6 +169,13 @@ var spectrum = {
     var removeClass = isMinimize ? 'spectrum-close' : 'spectrum-minimize';
     var currentBias = this.currentPublication.fields.bias;
     removeClass += ' spectrum-not-minimize';
+
+    if (hiddenType === 'spectrum-close') {
+      chrome.runtime.sendMessage({
+        action: 'setIcon',
+        url: '../images/icon-inactive.png',
+      });
+    }
 
     if (isMinimize && !$currentPublicationIcon.attr('src')) {
       currentPublicationLink = chrome.extension.getURL('../images/icon-' + currentBias + '.png');
