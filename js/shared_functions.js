@@ -271,6 +271,8 @@ var spectrum = {
 
       if (hidden) {
         _this._hideContainer(hidden);
+      } else {
+        _this._showContainer();
       }
 
       if (hiddenIcon) {
