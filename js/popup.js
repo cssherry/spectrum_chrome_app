@@ -81,8 +81,6 @@ function addSpectrumEvents() {
         console.log('Successfully saved click');
       });
     });
-
-
   });
 
   function toggleVisibility(showType, hideType) {

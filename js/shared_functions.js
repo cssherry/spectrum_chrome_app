@@ -483,13 +483,13 @@ var spectrum = {
       }
     } else {
       var manifest = chrome.runtime.getManifest();
-      var current_version = manifest.version;
+      var currentVersion = manifest.version;
       renderUrl = '../html/unknown.html';
       renderConfig = {
         imageUrl: chrome.extension.getURL('../images/unknown.png'),
         currentURL: _this.currentURL,
         location: encodeURIComponent(_this.location.href),
-        currentVersion: current_version,
+        currentVersion: currentVersion,
       };
     }
 
