@@ -119,6 +119,7 @@ var spectrum = {
   init: function (location, publications, mediaBias) {
     // Add mediaBias and publications
     var _this = this;
+    _this.location = location;
     _this.publications = publications;
     _this.mediaBias = mediaBias;
 
@@ -477,6 +478,7 @@ var spectrum = {
       renderConfig = {
         imageUrl: chrome.extension.getURL('../images/unknown.png'),
         currentURL: _this.currentURL,
+        location: encodeURIComponent(_this.location.href),
         currentVersion: current_version,
       };
     }
