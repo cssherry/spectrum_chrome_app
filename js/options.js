@@ -1,4 +1,4 @@
-var uniqueId;
+var unique_id;
 var settingURL = 'https://spectrum-backend.herokuapp.com/feeds/saveuser';
 
 function getRandomToken() {
@@ -26,11 +26,11 @@ function saveOptions() {
     is_internal_user: username.indexOf('test') >= 0,
   };
 
-  if (!uniqueId) {
-    uniqueId = username + '-' + getRandomToken();
+  if (!unique_id) {
+    unique_id = username + '-' + getRandomToken();
   }
 
-  setConfig.unique_id = uniqueId;
+  setConfig.unique_id = unique_id;
   var status = document.getElementById('status');
   $.ajax({
     url: settingURL,
@@ -63,12 +63,12 @@ function restoreOptions() {
     hidden: '',
     hiddenIcon: null,
     username: '',
-    uniqueId: '',
+    unique_id: '',
   }, function (settings) {
     document.getElementById('hidden').value = settings.hidden || '';
     document.getElementById('hiddenIcon').checked = !!settings.hiddenIcon;
     document.getElementById('username').value = settings.username;
-    uniqueId = settings.uniqueId;
+    unique_id = settings.unique_id;
   });
 }
 

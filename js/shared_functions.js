@@ -123,7 +123,7 @@ var spectrum = {
     _this.publications = publications;
     _this.mediaBias = mediaBias;
 
-    getLocalStorage(['hidden'], function (items) {
+    getLocalStorage(['hidden', 'unique_id', 'username', 'is_internal_user'], function (items) {
       _this.isNotClosed = items.hidden !== 'spectrum-close';
 
       if (_this.isNotClosed) {
