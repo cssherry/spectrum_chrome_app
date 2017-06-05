@@ -52,7 +52,7 @@ function addSpectrumEvents() {
       $iconOptions.filter('.spectrum-show-option').hide();
     }
 
-    $popupBody.on('click.trackClick', 'li', function (e) {
+    $popupBody.on('click.sendClick', 'li', function (e) {
       var elementClass = '.' + e.currentTarget.className.replace(/ /g, '.');
       var clickData = {
         element_selector: elementClass,
