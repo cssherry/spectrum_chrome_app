@@ -125,6 +125,9 @@ var spectrum = {
 
     getLocalStorage(['hidden', 'unique_id', 'username', 'is_internal_user'], function (items) {
       _this.isNotClosed = items.hidden !== 'spectrum-close';
+      _this.unique_id = items.unique_id;
+      _this.username = items.username;
+      _this.is_internal_user = items.is_internal_user;
 
       if (_this.isNotClosed) {
         chrome.runtime.sendMessage({
@@ -153,11 +156,18 @@ var spectrum = {
 
   getAssociations: function () {
     var _this = this;
-    _this.currentURL = encodeURIComponent(location.href.split('?')[0]);
+    _this.currentURL = location.href.split('?')[0];
+    var data = {
+      url: _this.currentURL,
+      unique_id: _this.unique_id,
+      username: _this.username,
+      is_internal_user: _this.is_internal_user,
+    };
 
     $.ajax({
-      url: associationApiUrl + '?url=' + _this.currentURL,
-      type: 'GET',
+      url: associationApiUrl,
+      data: data,
+      type: 'POST',
     })
     .fail(function (req, textstatus, errorthrown) {
       logError('Failed to get associations', req, textstatus, errorthrown);
