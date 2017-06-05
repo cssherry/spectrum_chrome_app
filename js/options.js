@@ -1,5 +1,6 @@
 var unique_id;
 var settingURL = 'https://spectrum-backend.herokuapp.com/feeds/saveuser';
+var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
 
 function getRandomToken() {
     // E.g. 8 * 32 = 256 bits token
@@ -25,10 +26,6 @@ function saveOptions() {
     username: username,
     is_internal_user: username.indexOf('test') >= 0,
   };
-
-  if (!unique_id) {
-    unique_id = username + '-' + getRandomToken();
-  }
 
   setConfig.unique_id = unique_id;
   var status = document.getElementById('status');
@@ -69,6 +66,41 @@ function restoreOptions() {
     document.getElementById('hiddenIcon').checked = !!settings.hiddenIcon;
     document.getElementById('username').value = settings.username;
     unique_id = settings.unique_id;
+
+    if (!unique_id) {
+      unique_id = username + '-' + getRandomToken();
+    }
+
+    $('#user-form').off('change.sendClick')
+                   .on('change.sendClick', function (e) {
+      var elementId = '#' + e.target.id;
+      var clickData = {
+        element_selector: elementId,
+        clicked_item_dict: JSON.stringify({
+          element_id: e.target.id,
+          element_name: e.target.name,
+          value: e.target.value,
+        }),
+        clicked_version: chrome.runtime.getManifest().version,
+        unique_id: unique_id,
+      };
+
+      $.ajax({
+        url: clickURL,
+        data: clickData,
+        type: 'POST',
+      })
+      .fail(function (req, textstatus, errorthrown) {
+        console.log('Failed to save click');
+        console.log('req', req);
+        console.log('textstatus', textstatus);
+        console.log('errorthrown', errorthrown);
+
+      })
+      .done(function (resp) {
+        console.log('Successfully saved click');
+      });
+    });
   });
 }
 
