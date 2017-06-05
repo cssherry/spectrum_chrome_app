@@ -1,3 +1,5 @@
+var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
+
 function sendMessage(requestObject, callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var currentTab = tabs[0].id;
@@ -15,7 +17,7 @@ function addSpectrumEvents() {
   // Set initial visibility
   var setVisibilityRequest = {
     action: 'getLocalStorage',
-    localValues: ['hidden', 'hiddenIcon'],
+    localValues: ['hidden', 'hiddenIcon', 'unique_id'],
   };
   sendMessage(setVisibilityRequest, function (result) {
     if (!result) {
@@ -23,6 +25,7 @@ function addSpectrumEvents() {
         currentArticle: undefined,
         hidden: undefined,
         hiddenIcon: undefined,
+        unique_id: undefined,
       };
     }
 
@@ -48,6 +51,38 @@ function addSpectrumEvents() {
     } else {
       $iconOptions.filter('.spectrum-show-option').hide();
     }
+
+    $popupBody.on('click.trackClick', 'li', function (e) {
+      var elementClass = '.' + e.currentTarget.className.replace(/ /g, '.');
+      var clickData = {
+        element_selector: elementClass,
+        clicked_item_dict: JSON.stringify({
+          element_class: elementClass,
+          element_data: e.currentTarget.dataset,
+          element_text: e.currentTarget.textContent,
+        }),
+        clicked_version: chrome.runtime.getManifest().version,
+        unique_id: result.unique_id,
+      };
+
+      $.ajax({
+        url: clickURL,
+        data: clickData,
+        type: 'POST',
+      })
+      .fail(function (req, textstatus, errorthrown) {
+        console.log('Failed to save click');
+        console.log('req', req);
+        console.log('textstatus', textstatus);
+        console.log('errorthrown', errorthrown);
+
+      })
+      .done(function (resp) {
+        console.log('Successfully saved click');
+      });
+    });
+
+
   });
 
   function toggleVisibility(showType, hideType) {
