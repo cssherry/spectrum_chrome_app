@@ -1,4 +1,6 @@
 var uniqueId;
+var settingURL = 'https://spectrum-backend.herokuapp.com/feeds/saveuser';
+
 function getRandomToken() {
     // E.g. 8 * 32 = 256 bits token
     var randomPool = new Uint8Array(32);
@@ -21,20 +23,35 @@ function saveOptions() {
     hidden: hidden,
     hiddenIcon: hiddenIcon,
     username: username,
+    is_internal_user: username.indexOf('test') >= 0,
   };
 
   if (!uniqueId) {
     uniqueId = username + '-' + getRandomToken();
-    setConfig.uniqueId = uniqueId;
   }
 
-  chrome.storage.sync.set(setConfig, function () {
-    // Update status to let user know options were saved.
-    var status = document.getElementById('status');
-    status.textContent = 'Options saved';
-    setTimeout(function () {
-      status.textContent = '';
-    }, 1000);
+  setConfig.unique_id = uniqueId;
+  var status = document.getElementById('status');
+  $.ajax({
+    url: settingURL,
+    data: setConfig,
+    type: 'POST',
+  })
+  .fail(function (req, textstatus, errorthrown) {
+    status.textContent = 'Failed to save settings: ' + req.responseJSON.message;
+    console.log('req', req);
+    console.log('textstatus', textstatus);
+    console.log('errorthrown', errorthrown);
+
+  })
+  .done(function (resp) {
+    chrome.storage.sync.set(setConfig, function () {
+      // Update status to let user know options were saved.
+      status.textContent = resp.message;
+      setTimeout(function () {
+        status.textContent = '';
+      }, 1500);
+    });
   });
 }
 
