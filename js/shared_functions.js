@@ -152,10 +152,10 @@ var spectrum = {
 
   getAssociations: function () {
     var _this = this;
-    var urlToQuery = encodeURIComponent(location.href.split('?')[0]);
+    _this.currentURL = encodeURIComponent(location.href.split('?')[0]);
 
     $.ajax({
-      url: associationApiUrl + '?url=' + urlToQuery,
+      url: associationApiUrl + '?url=' + _this.currentURL,
       type: 'GET',
     })
     .fail(function (req, textstatus, errorthrown) {
@@ -471,9 +471,13 @@ var spectrum = {
         return Math.floor((item.parentElement.clientWidth - 170) / item.clientWidth);
       }
     } else {
+      var manifest = chrome.runtime.getManifest();
+      var current_version = manifest.version;
       renderUrl = '../html/unknown.html';
       renderConfig = {
         imageUrl: chrome.extension.getURL('../images/unknown.png'),
+        currentURL: _this.currentURL,
+        currentVersion: current_version,
       };
     }
 
