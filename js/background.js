@@ -17,9 +17,9 @@ function getRandomToken() {
 }
 
 // sets unique id
-function setOrGetUniqueId (sendResponse, username) {
+function setOrGetUniqueId(sendResponse, username) {
   // Double check that unique_id isn't set
-  var is_internal_user = username && username.indexOf('test') >= 0;
+  var is_internal_user = username && username.toLowerCase().indexOf('test') >= 0;
   if (!unique_id) {
     chrome.storage.sync.get(['unique_id', 'username'], function (settings) {
       // Update status to let user know options were saved.
@@ -33,12 +33,18 @@ function setOrGetUniqueId (sendResponse, username) {
         });
       }
 
-      sendResponse(unique_id, is_internal_user);
+      sendResponse({
+        unique_id: unique_id,
+        is_internal_user: is_internal_user,
+      });
       return true;
     });
     return true;
   } else {
-    sendResponse(unique_id, is_internal_user);
+    sendResponse({
+      unique_id: unique_id,
+      is_internal_user: is_internal_user,
+    });
     return true;
   }
 }
@@ -140,9 +146,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 
     getLocalStorage(request.localValues, function (items) {
-      setOrGetUniqueId(function (oldOrNewUniqueId, is_internal_user) {
-        items.unique_id = oldOrNewUniqueId;
-        items.is_internal_user = is_internal_user;
+      setOrGetUniqueId(function (config) {
+        items.unique_id = config.unique_id;
+        items.is_internal_user = config.is_internal_user;
         sendResponse(items);
         return true;
       }, items.username);
@@ -158,7 +164,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // send back feedback
   } else if (request.action === 'sendClick' || request.action === 'sendFeedback') {
     getLocalStorage(['username'], function (items) {
-      setOrGetUniqueId(function (oldOrNewUniqueId, is_internal_user) {
+      setOrGetUniqueId(function (config) {
+        var oldOrNewUniqueId = config.unique_id;
+        var is_internal_user = config.is_internal_user;
         var dataURL = request.action === 'sendClick' ? clickURL : feedbackURL;
 
         var dataParam = request.dataParam;

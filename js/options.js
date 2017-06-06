@@ -15,9 +15,9 @@ function saveOptions() {
   chrome.runtime.sendMessage({
     action: 'setOrGetUniqueId',
     username: username,
-  }, function (newUniqueId, is_internal_user) {
-    setConfig.unique_id = newUniqueId;
-    setConfig.is_internal_user = is_internal_user;
+  }, function (config) {
+    setConfig.unique_id = config.unique_id;
+    setConfig.is_internal_user = config.is_internal_user;
     var status = document.getElementById('status');
     $.ajax({
       url: settingURL,
