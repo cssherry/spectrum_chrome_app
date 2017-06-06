@@ -95,6 +95,13 @@ function addSpectrumEvents() {
     }
   }
 
+  $popupBody.find('.spectrum-get-involved > a').on('click.openEmail', function (e) {
+    e.preventDefault();
+    chrome.tabs.query({active:true},function(tabs){
+      chrome.tabs.update(tabs[0].id, {url: e.target.href});
+    });
+  });
+
   $popupBody.on('click.hidePanel', '.spectrum-hide-panel', function (e) {
     if ($(e.target).closest('.spectrum-disabled').length) {
       return;
