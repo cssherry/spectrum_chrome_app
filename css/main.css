@@ -167,6 +167,10 @@
 
 .spectrum-article-image-container div.spectrum-publication-title {
   padding-top: 0px;
+  display: inline-block;
+  padding-bottom: 2px;
+  max-height: 16px;
+  overflow: hidden;
 }
 
 .spectrum-article-image-container div,
@@ -367,6 +371,10 @@ a.spectrum-carousel-next:hover {
       color: white;
     }
 
+    .spectrum-feedback-area .spectrum-icon-container.spectrum-icon-container-40 {
+      margin-top: -40px;
+    }
+
     .spectrum-feedback-area .spectrum-icon-container .spectrum-icon {
       opacity: 0;
 
@@ -411,7 +419,7 @@ a.spectrum-carousel-next:hover {
     .spectrum-feedback-area .spectrum-icon-container {
       position: relative;
       float: right;
-      margin: -15px 10px 10px 10px;
+      margin: -15px 10px 0 10px;
     }
 
     .spectrum-feedback-area:hover .spectrum-icon:hover {
