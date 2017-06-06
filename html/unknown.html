@@ -1,11 +1,16 @@
 <div class="spectrum-unknown-container">
-  <div class="spectrum-non-float-container">
+  <div class="spectrum-non-float-container" data-feed-item-id="{{ feed_item_id }}">
 
-    <div class="spectrum-info-container">
+    <div class="spectrum-info-container spectrum-feedback-area">
       <div class="unknown-article-image-container spectrum-container-cell">
         <img class="spectrum-article-image" src="{{imageUrl}}">
       </div>
       <div class="spectrum-article-body spectrum-container-cell">
+        <span class="spectrum-icon-container">
+          <i class="icon-thumbs-up spectrum-icon">&#xe800;</i>
+          <i class="icon-thumbs-down spectrum-icon">&#xe801;</i>
+        </span>
+
         <div class="unknown-article-help">
           Hey! We couldn’t find any similar articles from opposing viewpoints.
           Try a different article or <a class="spectrum-mail-help" href="mailto:hello@getthespectrum.com?subject=[SPECTRUM v{{ currentVersion }}] No associations found&body=Current Link: {{ location }}%0ACleaned Link: {{ currentURL }}">email us</a> with suggestions.

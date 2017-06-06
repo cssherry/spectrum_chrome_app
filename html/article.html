@@ -1,5 +1,5 @@
 <div class="spectrum-article-container">
-  <div class="spectrum-non-float-container">
+  <div class="spectrum-non-float-container" data-feed-item-id="{{ feed_item_id }}" data-association-id="{{ association_id }}">
 
     <div class="spectrum-article-image-container spectrum-container-cell">
       <a class="spectrum-article-image-a" href="{{target_url}}" target="_blank">
@@ -7,7 +7,11 @@
       </a>
     </div>
 
-    <div class="spectrum-article-body spectrum-container-cell">
+    <div class="spectrum-article-body spectrum-container-cell spectrum-feedback-area">
+      <span class="spectrum-icon-container">
+        <i class="icon-thumbs-up spectrum-icon">&#xe800;</i>
+        <i class="icon-thumbs-down spectrum-icon">&#xe801;</i>
+      </span>
 
       <div class="spectrum-article-source">
         {{source}}

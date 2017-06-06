@@ -28,7 +28,7 @@
     },
 
     "web_accessible_resources": [
-        "html/*", "images/*"
+        "html/*", "images/*", "css/fontello-8bb726f8/font/*"
     ],
 
     "content_scripts": [
