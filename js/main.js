@@ -2,7 +2,6 @@ var publications;
 var mediaBias;
 var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
 
-
 // Store publications in hash with base_url
 // TODO: Consider if we should be only taking last 2 fields of base_url
 //      (ie ap.org instead of hosted.ap.org)
@@ -22,9 +21,12 @@ function getAssociations() {
   var currentLocation = window.location;
   var spectrumInstance = spectrum.init(currentLocation, publications, mediaBias);
 
-  chrome.runtime.onMessage.addListener(function (request){
+  // Add most message listeners
+  // hideSpectrumPanel and showSpectrumPanel hide/show spectrum from popover
+  // getLocalStorage returns data from local storage
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    var changeParam = {};
     if (request.action === 'hideSpectrumPanel') {
-      const changeParam = {};
       changeParam[request.showType] = request.typeButton;
       setLocalStorage(changeParam);
       if (request.showType === 'hidden') {
@@ -33,12 +35,7 @@ function getAssociations() {
         spectrumInstance._hideIcon();
       }
       return true;
-    }
-  });
-
-  chrome.runtime.onMessage.addListener(function (request) {
-    if (request.action === 'showSpectrumPanel') {
-      const changeParam = {};
+    } else if (request.action === 'showSpectrumPanel') {
       changeParam[request.showType] = null;
       setLocalStorage(changeParam);
       if (request.showType === 'hidden') {
@@ -48,11 +45,7 @@ function getAssociations() {
         spectrumInstance._showIcon();
       }
       return true;
-    }
-  });
-
-  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.action === 'getLocalStorage') {
+    } else if (request.action === 'getLocalStorage') {
       getLocalStorage(request.localValues, function (items) {
         items.currentArticle = !!spectrumInstance.currentArticle;
         sendResponse(items);
@@ -89,4 +82,4 @@ getLocalStorage(['mediaBias'], function (items) {
       }, getAssociations, true /* checkDate */);
     });
   }
-})
+});
