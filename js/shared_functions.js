@@ -1,79 +1,8 @@
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
-var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
+var unique_id;
 
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-
-// Get local storage info
-// name: identifier/variable name for data (will be transformed and saved as 'spectrum-NAME')
-// _earliestAcceptableDate: OPTIONAL string that can be parsed into date (eg 'March 25, 2017')
-function processValue(keyData, _earliestAcceptableDate) {
-  if (!keyData) {
-    return undefined;
-  }
-
-  // Process non-checkDate values
-  if (!keyData || !keyData.dateSaved) {
-    return keyData;
-  }
-
-  // if older than 7 days, disregard
-  var sevenDays = 1000 * 60 * 24 * 7;
-
-  // If there's a _earliestAcceptableDate, figure out if it's older than dateSaved (good)
-  var dateSavedAcceptable = true;
-  var dateSaved = new Date(keyData.dateSaved);
-  if (_earliestAcceptableDate) {
-    dateSavedAcceptable = new Date(_earliestAcceptableDate) < dateSaved;
-  }
-
-  if (dateSavedAcceptable && new Date() - dateSaved < sevenDays) {
-    return keyData.data;
-  }
-
-  return null;
-}
-
-function getLocalStorage(names, cb, _earliestAcceptableDate) {
-  // MAIN FUNCTION
-  chrome.storage.sync.get(names, function (items) {
-    for (var key in items) {
-      if (items.hasOwnProperty(key)) {
-        items[key] = processValue(items[key], _earliestAcceptableDate);
-      }
-    }
-
-    if (cb) {
-      return cb(items);
-    } else {
-      return true;
-    }
-  });
-}
-
-// Set local storage info
-function setLocalStorage(data, cb, checkDate) {
-  var result = {};
-  for (var key in data) {
-    if (data.hasOwnProperty(key)) {
-      if (checkDate) {
-        result[key] = {
-          dateSaved: new Date().toString(),
-          data: data[key],
-        };
-      } else {
-        result[key] = data[key];
-      }
-    }
-  }
-
-  chrome.storage.sync.set(result, function () {
-    if (cb) {
-      cb()
-    }
-    return true;
-  });
-}
 
 // Spectrum ---------------------------------------------------------------------
 
@@ -125,11 +54,16 @@ var spectrum = {
     _this.publications = publications;
     _this.mediaBias = mediaBias;
 
-    getLocalStorage(['hidden', 'unique_id', 'username', 'is_internal_user'], function (items) {
+    chrome.runtime.sendMessage({
+      action: 'getLocalStorage',
+      localValues: ['hidden', 'hiddenIcon', 'unique_id', 'username', 'is_internal_user']
+    }, function (items) {
       _this.isNotClosed = items.hidden !== 'spectrum-close';
-      _this.unique_id = items.unique_id;
+      unique_id = items.unique_id;
       _this.username = items.username;
       _this.is_internal_user = items.is_internal_user;
+      _this.hidden = items.hidden;
+      _this.hiddenIcon = items.hiddenIcon;
 
       if (_this.isNotClosed) {
         chrome.runtime.sendMessage({
@@ -161,7 +95,7 @@ var spectrum = {
     _this.currentURL = location.href.split('?')[0];
     var data = {
       url: _this.currentURL,
-      unique_id: _this.unique_id,
+      unique_id: unique_id,
       username: _this.username,
       is_internal_user: _this.is_internal_user,
     };
@@ -251,95 +185,86 @@ var spectrum = {
     var currPubData = this.currentPublication.fields;
     var _this = this;
 
-    getLocalStorage(['hidden', 'hiddenIcon', 'unique_id'], function (items) {
-      var hidden = items.hidden;
-      var hiddenIcon = items.hiddenIcon;
-      if ($html) {
-        _this._$container = $html;
-        _this._$articlesContainer = $html.find('#spectrum-articles-container');
-        _this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
-        $('body').append($html);
+    var hidden = _this.hidden;
+    var hiddenIcon = _this.hiddenIcon;
+    if ($html) {
+      _this._$container = $html;
+      _this._$articlesContainer = $html.find('#spectrum-articles-container');
+      _this._$articleBorder = $html.find('#spectrum-articles-container-top-border');
+      $('body').append($html);
 
-        // Properly minimize container container if user hasn't maximized it before
-        if (hidden === null) {
-          _this._showContainer();
+      // Properly minimize container container if user hasn't maximized it before
+      if (hidden === null) {
+        _this._showContainer();
+      } else {
+        _this._hideContainer('spectrum-minimize');
+      }
+
+      // Add events here so only add once
+      _this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
+        var typeButton = e.target.dataset.hideType;
+        chrome.runtime.sendMessage({
+          action: 'setLocalStorage',
+          localValues: { hidden: typeButton },
+        });
+        _this._hideContainer(typeButton);
+      });
+
+      _this._$container.on('click.spectrumExpand', '.spectrum-expand-icon', function () {
+        chrome.runtime.sendMessage({
+          action: 'setLocalStorage',
+          localValues: { hidden: null },
+        });
+        _this._showContainer();
+      });
+
+      _this._$container.on('click.sendClick', function (e) {
+        var elementSelector;
+        e.stopPropagation();
+
+        if (e.target.id) {
+          elementSelector = '#' + e.target.id;
         } else {
-          _this._hideContainer('spectrum-minimize');
+          elementSelector = '.' + e.target.className.replace(/ /g, '.');
         }
 
-        // Add events here so only add once
-        _this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
-          var typeButton = e.target.dataset.hideType;
-          setLocalStorage({ hidden: typeButton });
-          _this._hideContainer(typeButton);
+        var clickData = {
+          element_selector: elementSelector,
+          clicked_item_dict: JSON.stringify({
+            element_id: e.target.id,
+            element_class: e.target.className,
+            element_data: e.target.dataset,
+            element_text: e.target.textContent,
+          }),
+        };
+
+        chrome.runtime.sendMessage({
+          action: 'sendClick',
+          dataParam: clickData,
         });
-
-        _this._$container.on('click.spectrumExpand', '.spectrum-expand-icon', function () {
-          setLocalStorage({ hidden: null });
-          _this._showContainer();
-        });
-
-        _this._$container.on('click.sendClick', function (e) {
-          var elementSelector;
-          e.stopPropagation();
-
-          if (e.target.id) {
-            elementSelector = '#' + e.target.id;
-          } else {
-            elementSelector = '.' + e.target.className.replace(/ /g, '.');
-          }
-
-          var clickData = {
-            element_selector: elementSelector,
-            clicked_item_dict: JSON.stringify({
-              element_id: e.target.id,
-              element_class: e.target.className,
-              element_data: e.target.dataset,
-              element_text: e.target.textContent,
-            }),
-
-            clicked_version: chrome.runtime.getManifest().version,
-            unique_id: items.unique_id,
-          };
-
-          $.ajax({
-            url: clickURL,
-            data: clickData,
-            type: 'POST',
-          })
-          .fail(function (req, textstatus, errorthrown) {
-            console.log('Failed to save click');
-            console.log('req', req);
-            console.log('textstatus', textstatus);
-            console.log('errorthrown', errorthrown);
-          })
-          .done(function () {
-            console.log('Successfully saved click');
-          });
-        });
-      } else {
-        _this._$articlesContainer.empty();
-      }
-
-      if (hidden) {
-        _this._hideContainer(hidden);
-      } else {
-        _this._showContainer();
-      }
-
-      if (hiddenIcon) {
-        _this._hideIcon();
-      }
-
-      render('../html/publication_detail.html', {
-        imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
-        bias: _this.mediaBias[currPubData.bias],
-        biasAbbr: currPubData.bias,
-        target_url: currPubData.base_url,
-        publication: currPubData.name,
-      }, function ($el) {
-        _this._addCurrArticleCB($el, articleData);
       });
+    } else {
+      _this._$articlesContainer.empty();
+    }
+
+    if (hidden) {
+      _this._hideContainer(hidden);
+    } else {
+      _this._showContainer();
+    }
+
+    if (hiddenIcon) {
+      _this._hideIcon();
+    }
+
+    render('../html/publication_detail.html', {
+      imageUrl: chrome.extension.getURL('../images/dial-' + currPubData.bias + '.png'),
+      bias: _this.mediaBias[currPubData.bias],
+      biasAbbr: currPubData.bias,
+      target_url: currPubData.base_url,
+      publication: currPubData.name,
+    }, function ($el) {
+      _this._addCurrArticleCB($el, articleData);
     });
   },
 
@@ -523,14 +448,12 @@ var spectrum = {
         return Math.floor((item.parentElement.clientWidth - 170) / item.clientWidth);
       }
     } else {
-      var manifest = chrome.runtime.getManifest();
-      var currentVersion = manifest.version;
       renderUrl = '../html/unknown.html';
       renderConfig = {
         imageUrl: chrome.extension.getURL('../images/unknown.png'),
         currentURL: _this.currentURL,
         location: encodeURIComponent(_this.location.href),
-        currentVersion: currentVersion,
+        currentVersion: chrome.runtime.getManifest().version,
       };
     }
 

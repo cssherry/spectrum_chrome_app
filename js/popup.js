@@ -1,5 +1,3 @@
-var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
-
 function sendMessage(requestObject, callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var currentTab = tabs[0].id;
@@ -8,49 +6,48 @@ function sendMessage(requestObject, callback) {
 }
 
 function addSpectrumEvents() {
-  var currentPublication;
   var $popupBody = $('.spectrum-popup-body');
   var $panelOptions = $popupBody.find('.spectrum-close');
   var $minimizedOptions = $popupBody.find('.spectrum-minimize');
   var $iconOptions = $popupBody.find('.spectrum-no-button');
 
   // Set initial visibility
-  var setVisibilityRequest = {
+  chrome.runtime.sendMessage({
     action: 'getLocalStorage',
-    localValues: ['hidden', 'hiddenIcon', 'unique_id'],
-  };
-  sendMessage(setVisibilityRequest, function (result) {
+    localValues: ['hidden', 'hiddenIcon'],
+  }, function (result) {
     if (!result) {
       result = {
-        currentArticle: undefined,
         hidden: undefined,
         hiddenIcon: undefined,
-        unique_id: undefined,
       };
     }
 
-    currentPublication = result.currentArticle;
-    if (currentPublication) {
-      $popupBody.removeClass('spectrum-disabled');
-    }
+    sendMessage({
+      action: 'hasCurrentArticle',
+    }, function (hasCurrentArticle) {
+      if (hasCurrentArticle) {
+        $popupBody.removeClass('spectrum-disabled');
+      }
 
-    if (result.hidden === 'spectrum-close') {
-      $panelOptions.filter('.spectrum-hide-panel').hide();
-    } else {
-      $panelOptions.filter('.spectrum-show-option').hide();
-    }
+      if (result.hidden === 'spectrum-close') {
+        $panelOptions.filter('.spectrum-hide-panel').hide();
+      } else {
+        $panelOptions.filter('.spectrum-show-option').hide();
+      }
 
-    if (result.hidden === 'spectrum-minimize') {
-      $minimizedOptions.filter('.spectrum-hide-panel').hide();
-    } else {
-      $minimizedOptions.filter('.spectrum-show-option').hide();
-    }
+      if (result.hidden === 'spectrum-minimize') {
+        $minimizedOptions.filter('.spectrum-hide-panel').hide();
+      } else {
+        $minimizedOptions.filter('.spectrum-show-option').hide();
+      }
 
-    if (result.hiddenIcon) {
-      $iconOptions.filter('.spectrum-hide-panel').hide();
-    } else {
-      $iconOptions.filter('.spectrum-show-option').hide();
-    }
+      if (result.hiddenIcon) {
+        $iconOptions.filter('.spectrum-hide-panel').hide();
+      } else {
+        $iconOptions.filter('.spectrum-show-option').hide();
+      }
+    });
 
     $popupBody.on('click.sendClick', 'li', function (e) {
       var elementClass = '.' + e.currentTarget.className.replace(/ /g, '.');
@@ -61,24 +58,11 @@ function addSpectrumEvents() {
           element_data: e.currentTarget.dataset,
           element_text: e.currentTarget.textContent,
         }),
-        clicked_version: chrome.runtime.getManifest().version,
-        unique_id: result.unique_id,
       };
 
-      $.ajax({
-        url: clickURL,
-        data: clickData,
-        type: 'POST',
-      })
-      .fail(function (req, textstatus, errorthrown) {
-        console.log('Failed to save click');
-        console.log('req', req);
-        console.log('textstatus', textstatus);
-        console.log('errorthrown', errorthrown);
-
-      })
-      .done(function (resp) {
-        console.log('Successfully saved click');
+      chrome.runtime.sendMessage({
+        action: 'sendClick',
+        dataParam: clickData,
       });
     });
   });

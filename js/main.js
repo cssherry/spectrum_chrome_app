@@ -28,7 +28,10 @@ function getAssociations() {
     var changeParam = {};
     if (request.action === 'hideSpectrumPanel') {
       changeParam[request.showType] = request.typeButton;
-      setLocalStorage(changeParam);
+      chrome.runtime.sendMessage({
+        action: 'setLocalStorage',
+        localValues: changeParam,
+      });
       if (request.showType === 'hidden') {
         spectrumInstance._hideContainer(request.typeButton);
       } else {
@@ -37,7 +40,10 @@ function getAssociations() {
       return true;
     } else if (request.action === 'showSpectrumPanel') {
       changeParam[request.showType] = null;
-      setLocalStorage(changeParam);
+      chrome.runtime.sendMessage({
+        action: 'setLocalStorage',
+        localValues: changeParam,
+      });
       if (request.showType === 'hidden') {
         spectrumInstance._showContainer();
         spectrumInstance.getAssociations();
@@ -45,41 +51,50 @@ function getAssociations() {
         spectrumInstance._showIcon();
       }
       return true;
-    } else if (request.action === 'getLocalStorage') {
-      getLocalStorage(request.localValues, function (items) {
-        items.currentArticle = !!spectrumInstance.currentArticle;
-        sendResponse(items);
-        return true;
-      });
-      return true;
+    } else if (request.action === 'hasCurrentArticle') {
+      sendResponse && sendResponse(!!spectrumInstance.currentArticle);
     }
   });
 }
 
-// save publications list on localstorage because otherwise, exceeds QUOTA_BYTES_PER_ITEM
-publications = processValue(JSON.parse(localStorage.getItem('publications')));
-getLocalStorage(['mediaBias'], function (items) {
-  mediaBias = items.mediaBias;
-  if (publications && mediaBias) {
-    getAssociations();
-  } else {
-    $.ajax({
-      url: publicationUrl,
-      type: 'GET',
-    })
-    .fail(function (req, textstatus, errorthrown) {
-      logError('Failed to get publications and media biases', req, textstatus, errorthrown);
-    })
-    .done(function (resp) {
-      publications = processPublicationUrls(resp.publications);
-      mediaBias = resp.media_bias;
-      localStorage.setItem('publications', JSON.stringify({
-        dateSaved: new Date().toString(),
-        data: publications,
-      }));
-      setLocalStorage({
-        mediaBias: mediaBias,
-      }, getAssociations, true /* checkDate */);
-    });
-  }
+
+chrome.runtime.sendMessage({
+  action: 'processValue',
+  keyData: JSON.parse(localStorage.getItem('publications')),
+}, function (processedValue) {
+  publications = processedValue;
+
+  // save publications list on localstorage because otherwise, exceeds QUOTA_BYTES_PER_ITEM
+  chrome.runtime.sendMessage({
+    action: 'getLocalStorage',
+    localValues: ['mediaBias'],
+  }, function (items) {
+    mediaBias = items.mediaBias;
+    if (publications && mediaBias) {
+      getAssociations();
+    } else {
+      $.ajax({
+        url: publicationUrl,
+        type: 'GET',
+      })
+      .fail(function (req, textstatus, errorthrown) {
+        logError('Failed to get publications and media biases', req, textstatus, errorthrown);
+      })
+      .done(function (resp) {
+        publications = processPublicationUrls(resp.publications);
+        mediaBias = resp.media_bias;
+        localStorage.setItem('publications', JSON.stringify({
+          dateSaved: new Date().toString(),
+          data: publications,
+        }));
+        chrome.runtime.sendMessage({
+          action: 'setLocalStorage',
+          checkDate: true,
+          localValues: {
+            mediaBias: mediaBias,
+          },
+        });
+      });
+    }
+  });
 });
