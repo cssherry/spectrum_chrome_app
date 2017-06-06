@@ -48,12 +48,13 @@ function render(url, context, callback, isMultiple) {
 }
 
 var spectrum = {
-  init: function (location, publications, mediaBias) {
+  init: function (location, publications, mediaBias, spectrumModal) {
     // Add mediaBias and publications
     var _this = this;
     _this.location = location;
     _this.publications = publications;
     _this.mediaBias = mediaBias;
+    _this.spectrumModal = spectrumModal;
 
     chrome.runtime.sendMessage({
       action: 'getLocalStorage',
@@ -65,6 +66,11 @@ var spectrum = {
       _this.is_internal_user = items.is_internal_user;
       _this.hidden = items.hidden;
       _this.hiddenIcon = items.hiddenIcon;
+
+      _this.spectrumModal.setValue('unique_id', unique_id);
+      _this.spectrumModal.setValue('feedback_version', currentVersion);
+      _this.spectrumModal.setValue('username', _this.username);
+      _this.spectrumModal.setValue('is_internal_user', _this.is_internal_user);
 
       if (_this.isNotClosed) {
         chrome.runtime.sendMessage({
@@ -94,6 +100,10 @@ var spectrum = {
   getAssociations: function () {
     var _this = this;
     _this.currentURL = location.href.split('?')[0];
+
+    _this.spectrumModal.setValue('currentURL', _this.currentURL);
+    _this.spectrumModal.setValue('fullURL', location.href);
+
     var data = {
       url: _this.currentURL,
       unique_id: unique_id,
@@ -201,6 +211,8 @@ var spectrum = {
       }
 
       // Add events here so only add once
+      _this.spectrumModal.trigger(_this._$container);
+
       _this._$container.on('click.spectrumHide', '.spectrum-hide-panel', function (e) {
         var typeButton = e.target.dataset.hideType;
         chrome.runtime.sendMessage({
@@ -308,7 +320,7 @@ var spectrum = {
 
         renderConfig.push({
           imageUrl: imageUrl,
-          feed_item_id: _this.currentArticle.id,
+          feed_item_id: (_this.currentArticle && _this.currentArticle.id) || '',
           association_id: article.association_id,
           source: article.publication_name,
           headLine: article.title,
@@ -457,7 +469,7 @@ var spectrum = {
         currentURL: _this.currentURL,
         location: encodeURIComponent(_this.location.href),
         currentVersion: currentVersion,
-        feed_item_id: _this.currentArticle.id,
+        feed_item_id: (_this.currentArticle && _this.currentArticle.id) || '',
       };
     }
 

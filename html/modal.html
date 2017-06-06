@@ -1,0 +1,45 @@
+<div id="spectrum-feedback-modal" class="spectrum-modal">
+
+  <!-- Modal content -->
+  <div class="spectrum-modal-content">
+
+    <form id="spectrum-feedback-form">
+      <div class="spectrum-modal-header">
+        <span id="spectrum-type"></span> Feedback
+      </div>
+
+      <div class="spectrum-modal-body">
+        <label class="article-only">
+          Article is <span class="negative-only">not </span>similar
+          <input type="checkbox" id="spectrum-association" name="association" value="true">
+        </label>
+
+        <label>
+          Bias is <span class="negative-only">in</span>correct
+          <input type="checkbox" id="spectrum-bias" name="bias" value="true">
+        </label>
+
+        <label>
+          Source <span class="negative-only">not </span>reliable
+          <input type="checkbox" id="spectrum-source" name="source" value="true">
+        </label>
+
+        <label>
+          Other: <input type="text" name="other_detail" id='spectrum-other_detail'>
+        </label>
+
+        <label>
+          Tell us more:
+          <textarea name="comments" rows="5"></textarea>
+        </label>
+      </div>
+
+      <div class="spectrum-modal-footer">
+        <div id="status"></div>
+        <button type="button" class="close">Close</button>
+        <button type="submit" class="pull-right spectrum-submit">Send Feedback</button>
+      </div>
+    </form>
+  </div> <!-- Modal content -->
+
+</div>

@@ -19,7 +19,8 @@ function processPublicationUrls(pubs) {
 // Only get publications/media bias if not in local storage and less than 7-days old
 function getAssociations() {
   var currentLocation = window.location;
-  var spectrumInstance = spectrum.init(currentLocation, publications, mediaBias);
+  var modal = SpectrumModal.init();
+  var spectrumInstance = spectrum.init(currentLocation, publications, mediaBias, modal);
 
   // Add most message listeners
   // hideSpectrumPanel and showSpectrumPanel hide/show spectrum from popover

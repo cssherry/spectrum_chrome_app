@@ -1,5 +1,5 @@
 <div class="spectrum-article-container">
-  <div class="spectrum-non-float-container" data-feed-item-id="{{ feed_item_id }}" data-association-id="{{ association_id }}">
+  <div class="spectrum-non-float-container">
 
     <div class="spectrum-article-image-container spectrum-container-cell">
       <a class="spectrum-article-image-a" href="{{target_url}}" target="_blank">
@@ -7,15 +7,15 @@
       </a>
     </div>
 
-    <div class="spectrum-article-body spectrum-container-cell spectrum-feedback-area">
+    <div class="spectrum-article-body spectrum-container-cell spectrum-feedback-area" data-feed-item-id="{{ feed_item_id }}" data-association-id="{{ association_id }}">
       <div class="spectrum-article-source">
         {{source}}
         <span class="pull-right spectrum-publication-date">{{publication_date}}</span>
       </div>
 
       <span class="spectrum-icon-container spectrum-icon-container-40">
-        <i class="icon-thumbs-up spectrum-icon">&#xe800;</i>
-        <i class="icon-thumbs-down spectrum-icon">&#xe801;</i>
+        <i class="icon-thumbs-up spectrum-icon spectrum-open-modal" data-is-negative="">&#xe800;</i>
+        <i class="icon-thumbs-down spectrum-icon spectrum-open-modal" data-is-negative="true">&#xe801;</i>
       </span>
 
       <div class="spectrum-article-headline" title="{{headLine}}">

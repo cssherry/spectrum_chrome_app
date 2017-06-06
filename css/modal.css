@@ -1,0 +1,130 @@
+/* The Modal (background) */
+.spectrum-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10000000000000000; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    top: 10px;
+}
+
+/* Modal Content */
+.spectrum-modal .spectrum-modal-content form {
+  margin: 0;
+}
+
+/* Modal Content */
+.spectrum-modal .spectrum-modal-content {
+    position: relative;
+    color: gray;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 350px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+            animation-name: animatetop;
+            animation-duration: 0.4s
+}
+
+.spectrum-modal .spectrum-modal-content,
+.spectrum-modal .spectrum-modal-content label,
+.spectrum-modal .spectrum-modal-content label span {
+  font-family: OpenSans, Arial, sans-serif !important;
+}
+
+.spectrum-modal .spectrum-modal-content div,
+.spectrum-modal .spectrum-modal-content label,
+.spectrum-modal .spectrum-modal-content label span {
+  color: gray;
+  font-size: 14px;
+}
+
+.spectrum-modal .spectrum-modal-content input,
+.spectrum-modal .spectrum-modal-content textarea {
+  background: none;
+  width: 50%;
+  position: relative;
+}
+
+.spectrum-modal .spectrum-modal-content textarea {
+  width: 100%;
+  padding-top: 2px;
+}
+
+.spectrum-modal .spectrum-modal-content input {
+  float: right;
+  max-height: 20px;
+  max-width: 180px;
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0} 
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.spectrum-modal button.close, .spectrum-submit {
+  opacity: 1;
+  margin: 5px 0;
+}
+
+/* The Close Button */
+.spectrum-modal button.close {
+    color: #2667b5;
+    border: none;
+    background-color: none;
+    background: none;
+}
+
+.spectrum-modal button.close:hover,
+.spectrum-modal button.close:focus,
+.spectrum-modal button.spectrum-submit:hover,
+.spectrum-modal button.spectrum-submit:focus {
+    opacity: 0.7;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* The Submit Button */
+.spectrum-modal button.spectrum-submit {
+    color: white;
+    background-color: #2667b5;
+    background: #2667b5;
+    border-radius: 5px;
+}
+
+.spectrum-modal .spectrum-modal-header {
+    padding: 5px 16px;
+    font-size: 18px;
+    border-bottom: 1px solid #ababab;
+    color: black;
+}
+
+.spectrum-modal .spectrum-modal-body {
+    padding: 2px 16px;
+    color: gray;
+}
+
+.spectrum-modal .spectrum-modal-footer {
+    padding: 5px 16px;
+    color: white;
+    border-top: 1px solid #ababab;
+    font-size: 16px;
+}
+
+
+.spectrum-modal .spectrum-modal-footer button {
+    font-size: 16px;
+}
+

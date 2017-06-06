@@ -30,6 +30,7 @@ function saveOptions() {
       } else {
         status.textContent = 'Failed to save settings';
       }
+      status.className = 'spectrum-status-error';
       console.log('req', req);
       console.log('textstatus', textstatus);
       console.log('errorthrown', errorthrown);
@@ -38,8 +39,10 @@ function saveOptions() {
       chrome.storage.sync.set(setConfig, function () {
         // Update status to let user know options were saved.
         status.textContent = resp.message;
+        status.className = 'spectrum-status-success';
         setTimeout(function () {
           status.textContent = '';
+          status.className = '';
         }, 2000);
       });
     });

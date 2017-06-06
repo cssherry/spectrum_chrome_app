@@ -34,12 +34,17 @@
     "content_scripts": [
         {
             "matches": ["http://*/*", "https://*/*"],
-            "css": ["css/main.min.css"],
+            "css": [
+              "css/form.min.css",
+              "css/modal.min.css",
+              "css/main.min.css"
+            ],
             "js": [
                 "js/lib/jquery-3.1.1.min.js",
                 "js/lib/handlebars-v4.0.5.min.js",
                 "js/lib/velocity.v1.4.2.min.js",
                 "js/shared_functions.min.js",
+                "js/modal.min.js",
                 "js/main.min.js"
             ]
         }

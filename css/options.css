@@ -2,18 +2,8 @@ body {
   padding: 10px;
 }
 
-label {
-  display: block;
-  margin: 15px;
-}
-
 label > input,
 label > select {
   position: absolute !important;
   left: 140px;
-}
-
-.pull-right {
-  float: right;
-  margin-bottom: 10px;
 }

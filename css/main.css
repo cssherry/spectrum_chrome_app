@@ -1,7 +1,7 @@
 #spectrum-container {
   position: fixed;
   bottom: 0;
-  z-index: 1000000000000000;
+  z-index: 2147483645;
   font-family: OpenSans, Arial, sans-serif !important;
 
   box-sizing: border-box;
@@ -332,7 +332,7 @@ a.spectrum-article-headline {
 a.spectrum-carousel-prev,
 a.spectrum-carousel-next {
   position: absolute;
-  z-index: 1000000000000005;
+  z-index: 2147483646;
   display: inline-block;
   height: 100%;
   color: #333;
