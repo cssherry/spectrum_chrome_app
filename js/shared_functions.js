@@ -1,4 +1,6 @@
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
+var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
+
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
                   'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
@@ -249,7 +251,7 @@ var spectrum = {
     var currPubData = this.currentPublication.fields;
     var _this = this;
 
-    getLocalStorage(['hidden', 'hiddenIcon'], function (items) {
+    getLocalStorage(['hidden', 'hiddenIcon', 'unique_id'], function (items) {
       var hidden = items.hidden;
       var hiddenIcon = items.hiddenIcon;
       if ($html) {
@@ -275,6 +277,45 @@ var spectrum = {
         _this._$container.on('click.spectrumExpand', '.spectrum-expand-icon', function () {
           setLocalStorage({ hidden: null });
           _this._showContainer();
+        });
+
+        _this._$container.on('click.sendClick', function (e) {
+          var elementSelector;
+          e.stopPropagation();
+
+          if (e.target.id) {
+            elementSelector = '#' + e.target.id;
+          } else {
+            elementSelector = '.' + e.target.className.replace(/ /g, '.');
+          }
+
+          var clickData = {
+            element_selector: elementSelector,
+            clicked_item_dict: JSON.stringify({
+              element_id: e.target.id,
+              element_class: e.target.className,
+              element_data: e.target.dataset,
+              element_text: e.target.textContent,
+            }),
+
+            clicked_version: chrome.runtime.getManifest().version,
+            unique_id: items.unique_id,
+          };
+
+          $.ajax({
+            url: clickURL,
+            data: clickData,
+            type: 'POST',
+          })
+          .fail(function (req, textstatus, errorthrown) {
+            console.log('Failed to save click');
+            console.log('req', req);
+            console.log('textstatus', textstatus);
+            console.log('errorthrown', errorthrown);
+          })
+          .done(function () {
+            console.log('Successfully saved click');
+          });
         });
       } else {
         _this._$articlesContainer.empty();
