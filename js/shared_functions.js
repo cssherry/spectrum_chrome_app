@@ -1,4 +1,5 @@
 var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
+var currentVersion = chrome.runtime.getManifest().version;
 var unique_id;
 
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
@@ -109,15 +110,14 @@ var spectrum = {
       logError('Failed to get associations', req, textstatus, errorthrown);
     })
     .done(function (resp) {
-      // API will return false if url is not in database
-      // In that case, don't show panel
-      _this.currentArticle = resp;
+      _this.associatedArticles = resp.top_associations;
+      _this.currentArticle = resp.current_article;
       if (resp) {
         if (_this.isNotClosed) {
           if (_this._$container) {
-            _this._addContainerCb(undefined, resp);
+            _this._addContainerCb(undefined);
           } else {
-            _this.showArticles(resp);
+            _this.showArticles();
           }
         }
       }
@@ -175,13 +175,13 @@ var spectrum = {
     this._$container.removeClass(removeClass);
   },
 
-  showArticles: function (articleData) {
+  showArticles: function () {
     render('../html/main.html', undefined, function ($el) {
-      this._addContainerCb($el, articleData);
+      this._addContainerCb($el);
     }.bind(this));
   },
 
-  _addContainerCb: function ($html, articleData) {
+  _addContainerCb: function ($html) {
     var currPubData = this.currentPublication.fields;
     var _this = this;
 
@@ -263,12 +263,13 @@ var spectrum = {
       biasAbbr: currPubData.bias,
       target_url: currPubData.base_url,
       publication: currPubData.name,
+      feed_item_id: this.currentPublication.id,
     }, function ($el) {
-      _this._addCurrArticleCB($el, articleData);
+      _this._addCurrArticleCB($el);
     });
   },
 
-  _addCurrArticleCB: function ($publicationHtml, articleData) {
+  _addCurrArticleCB: function ($publicationHtml) {
     var renderUrl, renderConfig, isMultiple;
     var _this = this;
     var renderCB = function ($el) {
@@ -277,7 +278,7 @@ var spectrum = {
 
     _this._$articlesContainer.append($publicationHtml);
 
-    if (articleData.length) {
+    if (_this.associatedArticles.length) {
       var singleArticleCB = function ($el) {
         _this._$articlesContainer.append($el);
         $(window).trigger('resize.show-or-hide');
@@ -296,7 +297,7 @@ var spectrum = {
       $leftButton.hide();
       _this._$articlesContainer.append($rightButton);
 
-      articleData.forEach(function (article) {
+      _this.associatedArticles.forEach(function (article) {
         var moreText = _this.mediaBias[article.publication_bias];
         var publicationDate = new Date(article.publication_date);
 
@@ -307,6 +308,8 @@ var spectrum = {
 
         renderConfig.push({
           imageUrl: imageUrl,
+          feed_item_id: _this.currentArticle.id,
+          association_id: article.association_id,
           source: article.publication_name,
           headLine: article.title,
           target_url: article.url,
@@ -422,7 +425,7 @@ var spectrum = {
       function getArticles() {
         if (!$articles) {
           var currentArticles = _this._$articlesContainer.find('.spectrum-article-container');
-          if (articleData.length === currentArticles.length) {
+          if (_this.associatedArticles.length === currentArticles.length) {
             $articles = currentArticles;
           }
         }
@@ -453,7 +456,8 @@ var spectrum = {
         imageUrl: chrome.extension.getURL('../images/unknown.png'),
         currentURL: _this.currentURL,
         location: encodeURIComponent(_this.location.href),
-        currentVersion: chrome.runtime.getManifest().version,
+        currentVersion: currentVersion,
+        feed_item_id: _this.currentArticle.id,
       };
     }
 
