@@ -16,6 +16,33 @@ function getRandomToken() {
     return hex;
 }
 
+// sets unique id
+function setOrGetUniqueId (sendResponse, username) {
+  // Double check that unique_id isn't set
+  var is_internal_user = username && username.indexOf('test') >= 0;
+  if (!unique_id) {
+    chrome.storage.sync.get(['unique_id', 'username'], function (settings) {
+      // Update status to let user know options were saved.
+      unique_id = settings.unique_id;
+      var username = settings.unique_id;
+
+      if (!unique_id) {
+        unique_id = username + '-' + getRandomToken();
+        chrome.storage.sync.set({
+          unique_id: unique_id,
+        });
+      }
+
+      sendResponse(unique_id, is_internal_user);
+      return true;
+    });
+    return true;
+  } else {
+    sendResponse(unique_id, is_internal_user);
+    return true;
+  }
+}
+
 // Get local storage info
 // name: identifier/variable name for data (will be transformed and saved as 'spectrum-NAME')
 // _earliestAcceptableDate: OPTIONAL string that can be parsed into date (eg 'March 25, 2017')
@@ -56,11 +83,14 @@ function getLocalStorage(names, cb, _earliestAcceptableDate) {
     }
 
     if (cb) {
-      return cb(items);
+      cb(items);
+      return true;
     } else {
       return true;
     }
   });
+
+  return true;
 }
 
 // Set local storage info
@@ -82,9 +112,12 @@ function setLocalStorage(data, cb, checkDate) {
   chrome.storage.sync.set(result, function () {
     if (cb) {
       cb()
+      return true;
     }
     return true;
   });
+
+  return true;
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -102,8 +135,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
   // get information from chrome storage
   } else if (request.action === 'getLocalStorage') {
+    if (request.localValues.indexOf('username') === -1) {
+      request.localValues.push('username');
+    }
+
     getLocalStorage(request.localValues, function (items) {
-      sendResponse(items);
+      setOrGetUniqueId(function (oldOrNewUniqueId, is_internal_user) {
+        items.unique_id = oldOrNewUniqueId;
+        items.is_internal_user = is_internal_user;
+        sendResponse(items);
+        return true;
+      }, items.username);
       return true;
     }, request._earliestAcceptableDate);
     return true;
@@ -118,54 +160,38 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
   // send back feedback
   } else if (request.action === 'sendClick' || request.action === 'sendFeedback') {
-    chrome.runtime.sendMessage({
-      action: 'setOrGetUniqueId',
-    }, function (oldOrNewUniqueId) {
-      var dataURL = request.action === 'sendClick' ? clickURL : feedbackURL;
+    getLocalStorage(['username'], function (items) {
+      setOrGetUniqueId(function (oldOrNewUniqueId, is_internal_user) {
+        var dataURL = request.action === 'sendClick' ? clickURL : feedbackURL;
 
-      var dataParam = request.dataParam;
-      dataParam.clicked_version = currentVersion;
-      dataParam.unique_id = oldOrNewUniqueId;
+        var dataParam = request.dataParam;
+        dataParam.clicked_version = currentVersion;
+        dataParam.unique_id = oldOrNewUniqueId;
+        dataParam.username = items.username;
+        dataParam.is_internal_user = is_internal_user;
 
-      $.ajax({
-        url: dataURL,
-        data: dataParam,
-        type: 'POST',
-      })
-      .fail(function (req, textstatus, errorthrown) {
-        console.log('Failed to save click');
-        console.log('req', req);
-        console.log('textstatus', textstatus);
-        console.log('errorthrown', errorthrown);
-      })
-      .done(function () {
-        console.log('Successfully saved click');
-      });
+        $.ajax({
+          url: dataURL,
+          data: dataParam,
+          type: 'POST',
+        })
+        .fail(function (req, textstatus, errorthrown) {
+          console.log('Failed to save click');
+          console.log('req', req);
+          console.log('textstatus', textstatus);
+          console.log('errorthrown', errorthrown);
+        })
+        .done(function () {
+          console.log('Successfully saved click');
+        });
+      }, items.username);
+      return true;
     });
     return true;
 
   // get back unique id
   } else if (request.action === 'setOrGetUniqueId') {
-    // Double check that unique_id isn't set
-    if (!unique_id) {
-      chrome.storage.sync.get(['unique_id', 'username'], function (settings) {
-        // Update status to let user know options were saved.
-        unique_id = settings.unique_id;
-        var username = settings.unique_id;
-
-        if (!unique_id) {
-          unique_id = username + '-' + getRandomToken();
-          chrome.storage.sync.set({
-            unique_id: unique_id,
-          });
-        }
-
-        sendResponse(unique_id);
-        return true;
-      });
-    } else {
-      sendResponse(unique_id);
-      return true;
-    }
+    setOrGetUniqueId(sendResponse, request.username);
+    return true;
   }
 });

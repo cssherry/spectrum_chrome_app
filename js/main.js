@@ -97,4 +97,5 @@ chrome.runtime.sendMessage({
       });
     }
   });
+  return true;
 });

@@ -56,7 +56,7 @@ var spectrum = {
 
     chrome.runtime.sendMessage({
       action: 'getLocalStorage',
-      localValues: ['hidden', 'hiddenIcon', 'unique_id', 'username', 'is_internal_user']
+      localValues: ['hidden', 'hiddenIcon', 'username'],
     }, function (items) {
       _this.isNotClosed = items.hidden !== 'spectrum-close';
       unique_id = items.unique_id;

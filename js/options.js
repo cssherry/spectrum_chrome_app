@@ -10,13 +10,14 @@ function saveOptions() {
     hidden: hidden,
     hiddenIcon: hiddenIcon,
     username: username,
-    is_internal_user: username.indexOf('test') >= 0,
   };
 
   chrome.runtime.sendMessage({
     action: 'setOrGetUniqueId',
-  }, function (newUniqueId) {
+    username: username,
+  }, function (newUniqueId, is_internal_user) {
     setConfig.unique_id = newUniqueId;
+    setConfig.is_internal_user = is_internal_user;
     var status = document.getElementById('status');
     $.ajax({
       url: settingURL,
