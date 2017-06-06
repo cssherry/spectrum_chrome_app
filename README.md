@@ -4,12 +4,16 @@
 
   ![help screenshot](/images/install_screenshot.png)
 
+- If you are a beta tested, go to "Options" button and add a name that has the word "test" in it. You should get a confirmation saying you're a beta tester after saving
+  ![options menu](/images/11_beta_tester.png)
+
+
 # Features
 ## Icon
-- [ ] Icon color indicate bias
+- [ ] Icon color indicate bias [ON HOLD]
 - [x] Hide/show panel
 - [x] Hide/show icons
-- [ ] link to "How do we measure bias", "Get the iOS app", and "Get involved with Spectrum" [ON HOLD]
+- [x] link to "How do we measure bias", and "Get involved with Spectrum"
 
   ![icon details](/images/07_minimized state.png)
 
@@ -24,8 +28,8 @@
   ![Unknown Spectrum Bar](/images/08_blank state.png)
 
 ## Responsive design
-- [ ] Have carousel for small screens
-- [ ] Have more articles for large screens
+- [x] Have carousel for small screens
+- [x] Have more articles for large screens
 
   ![Larger Screens](/images/09_1920px.png)
   ![Smaller Screens](/images/10_below 1440.png)
