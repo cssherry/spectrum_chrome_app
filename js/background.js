@@ -109,9 +109,9 @@ function setLocalStorage(data, cb, checkDate) {
     }
   }
 
-  chrome.storage.sync.set(result, function () {
+  chrome.storage.sync.set(result, function (items) {
     if (cb) {
-      cb()
+      cb(items);
       return true;
     }
     return true;
@@ -152,10 +152,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
   // set chrome storage
   } else if (request.action === 'setLocalStorage') {
-    setLocalStorage(request.localValues, function (items) {
-      sendResponse(items);
-      return true;
-    }, request.checkDate);
+    setLocalStorage(request.localValues, undefined, request.checkDate);
     return true;
 
   // send back feedback
