@@ -107,6 +107,11 @@
   color: #474747;
 }
 
+.spectrum-article-headline:hover a {
+  background: white;
+  background-color: white;
+}
+
 .spectrum-current-article-container {
   color: white;
   font-family: OpenSans, Arial, sans-serif !important;
@@ -229,9 +234,11 @@
   font-size: 15px;
   color: #474747 !important;
 }
-a.spectrum-article-headline {
-  color: #474747 !important;
+
+.spectrum-article-headline:hover {
+  overflow: visible;
 }
+
 #spectrum-container a:hover {
   opacity: .8 !important;
   color: inherit;
