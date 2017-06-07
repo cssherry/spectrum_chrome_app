@@ -56,17 +56,17 @@
   margin-left: 15%;
 }
 
-.unknown-article-help {
+.spectrum-unknown-container .unknown-article-help {
   margin-left: 10%;
 }
 
-.unknown-article-help, .unknown-article-help a {
+.spectrum-unknown-container .unknown-article-help, .unknown-article-help a {
   color: black;
   font-size: 14px;
   font-weight: 300;
 }
 
-.unknown-article-help a {
+.spectrum-unknown-container .unknown-article-help a {
   text-decoration: underline;
   text-transform: none;
 }
