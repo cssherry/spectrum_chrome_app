@@ -454,8 +454,8 @@ var spectrum = {
         return (
           rect.top >= 0 &&
           rect.left >= 0 &&
-          rect.top <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
-          rect.left <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+          rect.top < (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+          rect.left < (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
         );
       }
 
