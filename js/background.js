@@ -1,5 +1,5 @@
-var clickURL = 'https://spectrum-backend.herokuapp.com/feeds/click';
-var feedbackURL = 'https://spectrum-backend.herokuapp.com/feeds/feedback';
+var clickURL = 'http://127.0.0.1:8000/feeds/click';
+var feedbackURL = 'http://127.0.0.1:8000/feeds/feedback';
 var currentVersion = chrome.runtime.getManifest().version;
 var unique_id;
 

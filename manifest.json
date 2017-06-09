@@ -23,7 +23,7 @@
     "background": {
       "scripts": [
         "js/lib/jquery-3.1.1.min.js",
-        "js/background.min.js"
+        "js/background.js"
       ]
     },
 
@@ -43,9 +43,9 @@
                 "js/lib/jquery-3.1.1.min.js",
                 "js/lib/handlebars-v4.0.5.min.js",
                 "js/lib/velocity.v1.4.2.min.js",
-                "js/shared_functions.min.js",
-                "js/modal.min.js",
-                "js/main.min.js"
+                "js/shared_functions.js",
+                "js/modal.js",
+                "js/main.js"
             ]
         }
     ],

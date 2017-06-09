@@ -1,4 +1,4 @@
-var associationApiUrl = 'https://spectrum-backend.herokuapp.com/feeds/associations';
+var associationApiUrl = 'http://127.0.0.1:8000/feeds/associations';
 var currentVersion = chrome.runtime.getManifest().version;
 var unique_id;
 

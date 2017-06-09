@@ -1,4 +1,4 @@
-var feedbackUrl = 'https://spectrum-backend.herokuapp.com/feeds/feedback';
+var feedbackUrl = 'http://127.0.0.1:8000/feeds/feedback';
 
 var SpectrumModal = {
   init: function () {

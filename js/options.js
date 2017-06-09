@@ -1,4 +1,4 @@
-var settingURL = 'https://spectrum-backend.herokuapp.com/feeds/saveuser';
+var settingURL = 'http://127.0.0.1:8000/feeds/saveuser';
 
 // Saves options to chrome.storage.sync.
 function saveOptions() {

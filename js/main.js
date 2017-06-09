@@ -1,6 +1,6 @@
 var publications;
 var mediaBias;
-var publicationUrl = 'https://spectrum-backend.herokuapp.com/feeds/publications';
+var publicationUrl = 'http://127.0.0.1:8000/feeds/publications';
 
 // Store publications in hash with base_url
 // TODO: Consider if we should be only taking last 2 fields of base_url
